@@ -4,63 +4,52 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy'
-        required: true
-        default: 'main'
-      environment:
-        description: 'Environment to deploy'
-        required: true
-        default: 'production'
-      version:
-        description: 'Version to deploy'
-        required: true
-        default: 'latest'
 
 permissions:
-  content: read
+  contents: read
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
 
       - name: Install dependencies
         run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Build the project
+      - name: Build project
         run: npm run build
-      - name: Upload artifacts
-        run: actions/upload-artifact@v3
-        with:
-          name: 'github-pages'
-          path: |
-            dist
-            .github/workflows/cicd.yml
-            .github/workflows/deploy.yml
 
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v2
         with:
+          path: ./build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          publish_dir: ./build
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          artifact_name: 'github-pages'
-          publish_dir: ./dist
-          publish_branch: gh-pages
-          publish_repo: ${{ github.repository }}
