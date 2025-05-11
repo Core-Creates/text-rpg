@@ -2,7 +2,7 @@
   "name": "text-rpg",
   "version": "0.1.0",
   "private": false,
-  "homepage": "https://core-creates.github.io/text-rpg/",
+  "homepage": "https://core-creates.github.io/text-rpg/text-rpg",
   "dependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.0.0",
