@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+    content: read
   pages: write
   id-token: write
 
@@ -21,23 +21,25 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-
+          node-version: '20'
       - name: Install dependencies
         run: npm ci
-
       - name: Build project
         run: npm run build
-
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v2
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build
+          name: 'github-pages'
+          path: build
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifact_name: 'github-pages'
 
   deploy:
     needs: build
