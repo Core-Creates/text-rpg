@@ -74,4 +74,3 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 This is README for Text-based RPG game.
 
 npm run build
->>>>>>> e98046dd7d051c66252b565b6c7688e74e6ddb17
