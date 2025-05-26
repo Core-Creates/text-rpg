@@ -1,11 +1,13 @@
 import TextRPG from './TextRPG';
 
 function App() {
-  return (
-    <div className="App">
-      <TextRPG />
-    </div>
-  );
+  render () {
+    return (
+      <div className="App">
+        <TextRPG />
+      </div>
+    );
+  }
 }
 
 export default App;
