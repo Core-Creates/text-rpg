@@ -1,21 +1,43 @@
 import React, { useState } from 'react';
+import gameData from '../gameData';
 
 function Game() {
+  const [currentScene, setCurrentScene] = useState('intro');
   const [health, setHealth] = useState(100);
   const [inventory, setInventory] = useState([]);
-  const [log, setLog] = useState(["You wake up in a mysterious forest..."]);
+  const [log, setLog] = useState([gameData.intro.text]);
+  const [visited, setVisited] = useState({ intro: true });
+  const [sceneRandoms, setSceneRandoms] = useState({});
+  const [globalSeed] = useState(() => Math.floor(Math.random() * 1000000));
 
-  const handleExplore = () => {
-    const foundItem = Math.random() > 0.5 ? "Potion" : "Nothing";
-    const newLog = foundItem === "Potion" 
-      ? "You found a healing potion!" 
-      : "You find nothing of interest.";
+  const seededRandom = (sceneName) => {
+    const x = Math.sin(globalSeed + sceneName.length * 97) * 10000;
+    return x - Math.floor(x);
+  };
 
-    if (foundItem === "Potion") {
-      setInventory([...inventory, foundItem]);
+  const handleChoice = (choice) => {
+    if (choice.requires && !inventory.includes(choice.requires)) {
+      setLog(prev => [...prev, `You need ${choice.requires} to do that.`]);
+      return;
     }
 
-    setLog([...log, newLog]);
+    const damage = choice.damage || 0;
+    const item = choice.item;
+    const nextScene = choice.next;
+
+    setHealth(prev => Math.max(prev - damage, 0));
+    if (item) setInventory(prev => [...prev, item]);
+
+    setVisited(prev => ({ ...prev, [nextScene]: true }));
+    setSceneRandoms(prev => ({ ...prev, [nextScene]: seededRandom(nextScene) }));
+    setCurrentScene(nextScene);
+
+    const rand = sceneRandoms[nextScene] || seededRandom(nextScene);
+    const newText = typeof gameData[nextScene].text === 'function'
+      ? gameData[nextScene].text(visited[nextScene], rand)
+      : gameData[nextScene].text;
+
+    setLog(prev => [...prev, newText]);
   };
 
   const usePotion = () => {
@@ -28,12 +50,23 @@ function Game() {
     }
   };
 
+  const rand = sceneRandoms[currentScene] || seededRandom(currentScene);
+  const scene = gameData[currentScene];
+  const sceneChoices = typeof scene.choices === 'function'
+    ? scene.choices(visited[currentScene], rand)
+    : scene.choices;
+
   return (
     <div>
+      <p><strong>Seed:</strong> {globalSeed}</p>
       <p><strong>Health:</strong> {health}</p>
       <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
-      <button onClick={handleExplore}>Explore</button>
       <button onClick={usePotion}>Use Potion</button>
+      {sceneChoices.map((choice, i) => (
+        <button key={i} onClick={() => handleChoice(choice)} style={{ margin: '0.5em' }}>
+          {choice.text}
+        </button>
+      ))}
       <div style={{ marginTop: "1em" }}>
         <strong>Adventure Log:</strong>
         <ul>
