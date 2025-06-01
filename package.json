@@ -7,10 +7,6 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
-<<<<<<< HEAD
-    "gh-pages": "^6.3.0",
-=======
->>>>>>> 1879ab87fe5fe3c11fc7d2c7ad0b3dda08d152bf
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
