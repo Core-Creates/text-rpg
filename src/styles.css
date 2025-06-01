@@ -65,7 +65,8 @@ label {
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-// Start of mobile styles
+/* Start of mobile styles */
+/* Mobile styles */
 
 @media (max-width: 600px) {
   body {
