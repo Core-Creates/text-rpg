@@ -1,13 +1,13 @@
-import TextRPG from './TextRPG';
+import React, { useState } from 'react';
+import Game from './components/Game';
 
 function App() {
-
   return (
     <div className="App">
-      <TextRPG />
+      <h1>🧙‍♀️ Text RPG</h1>
+      <Game />
     </div>
   );
-
 }
 
 export default App;
