@@ -4,6 +4,8 @@ import Sound from './Sound';
 // Game component for a text-based RPG with random elements
 
 function Game() {
+  const [volume, setVolume] = useState(0.5); // default 50%
+  const [muted, setMuted] = useState(false);
   const [currentScene, setCurrentScene] = useState('intro');
   const [health, setHealth] = useState(100);
   const [inventory, setInventory] = useState([]);
@@ -59,33 +61,33 @@ function Game() {
     : scene.choices;
 
   const currentText = typeof scene.text === 'function'
-  ? scene.text(visited[currentScene], rand)
-  : scene.text;
+    ? scene.text(visited[currentScene], rand)
+    : scene.text;
 
   return (
-  <div>
-    {/* Sound component added here */}
-    <Sound currentScene={currentScene} currentText={currentText} />
+    <div>
+      {/* Sound component added here */}
+      <Sound currentScene={currentScene} currentText={currentText} />
 
-    <p><strong>Seed:</strong> {globalSeed}</p>
-    <p><strong>Health:</strong> {health}</p>
-    <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
-    <button onClick={usePotion}>Use Potion</button>
-    {sceneChoices.map((choice, i) => (
-      <button key={i} onClick={() => handleChoice(choice)} style={{ margin: '0.5em' }}>
-        {choice.text}
-      </button>
-    ))}
-    <div style={{ marginTop: "1em" }}>
-      <strong>Adventure Log:</strong>
-      <ul>
-        {log.map((entry, i) => (
-          <li key={i}>{entry}</li>
-        ))}
-      </ul>
+      <p><strong>Seed:</strong> {globalSeed}</p>
+      <p><strong>Health:</strong> {health}</p>
+      <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
+      <button onClick={usePotion}>Use Potion</button>
+      {sceneChoices.map((choice, i) => (
+        <button key={i} onClick={() => handleChoice(choice)} style={{ margin: '0.5em' }}>
+          {choice.text}
+        </button>
+      ))}
+      <div style={{ marginTop: "1em" }}>
+        <strong>Adventure Log:</strong>
+        <ul>
+          {log.map((entry, i) => (
+            <li key={i}>{entry}</li>
+          ))}
+        </ul>
+      </div>
     </div>
-  </div>
-);
+  );
 }
 
 
