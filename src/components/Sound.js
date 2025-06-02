@@ -19,7 +19,7 @@ function Sound({ currentScene, currentText, volume, muted }) {
     }
 
     // River sound
-    if (currentScene === "river") {
+    if (currentText?.toLowerCase().includes("river")) {
       river?.play().catch(() => {});
     } else {
       river?.pause();
@@ -37,8 +37,8 @@ function Sound({ currentScene, currentText, volume, muted }) {
 
   return (
     <>
-      <audio ref={riverAudio} src="/assets/sounds/river.wav" preload="auto" loop />
-      <audio ref={growlAudio} src="/assets/sounds/growl.wav" preload="auto" />
+      <audio ref={riverAudio} src="/assets/sounds/river.wav" preload="auto" />
+      <audio ref={growlAudio} src="/assets/sounds/growlSound.wav" preload="auto" />
     </>
   );
 }

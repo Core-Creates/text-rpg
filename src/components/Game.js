@@ -4,7 +4,7 @@ import Sound from './Sound';
 // Game component for a text-based RPG with random elements
 
 function Game() {
-  const [volume, setVolume] = useState(0.5); // default 50%
+  const [volume, setVolume] = useState(1); // default 50%
   const [muted, setMuted] = useState(false);
   const [currentScene, setCurrentScene] = useState('intro');
   const [health, setHealth] = useState(100);
@@ -13,6 +13,16 @@ function Game() {
   const [visited, setVisited] = useState({ intro: true });
   const [sceneRandoms, setSceneRandoms] = useState({});
   const [globalSeed] = useState(() => Math.floor(Math.random() * 1000000));
+  const enableAudio = () => {
+    const audios = document.querySelectorAll("audio");
+    audios.forEach(audio => {
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }).catch(() => { });
+    });
+  };
+
 
   const seededRandom = (sceneName) => {
     const x = Math.sin(globalSeed + sceneName.length * 97) * 10000;
@@ -80,10 +90,18 @@ function Game() {
       <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
       <button onClick={usePotion}>Use Potion</button>
       {sceneChoices.map((choice, i) => (
-        <button key={i} onClick={() => handleChoice(choice)} style={{ margin: '0.5em' }}>
+        <button
+          key={i}
+          onClick={() => {
+            enableAudio();      // ← wakes up the audio system
+            handleChoice(choice); // ← your existing logic
+          }}
+          style={{ margin: '0.5em' }}
+        >
           {choice.text}
         </button>
       ))}
+
       <div style={{ marginTop: "1em" }}>
         <strong>Adventure Log:</strong>
         <ul>
