@@ -1,4 +1,6 @@
+import { useWindowSize } from '@react-hook/window-size';
 import React, { useState } from 'react';
+import Confetti from 'react-confetti';
 import gameData from '../gameData';
 import Sound from './Sound';
 // Game component for a text-based RPG with random elements
@@ -78,7 +80,7 @@ function Game() {
     ? scene.text(visited[currentScene], rand)
     : scene.text;
 
-    return (
+  return (
     <div>
       {/* Sound component */}
       <Sound
