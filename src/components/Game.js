@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import gameData from '../gameData';
+import Sound from './Sound';
+// Game component for a text-based RPG with random elements
 
 function Game() {
   const [currentScene, setCurrentScene] = useState('intro');
@@ -57,26 +59,29 @@ function Game() {
     : scene.choices;
 
   return (
-    <div>
-      <p><strong>Seed:</strong> {globalSeed}</p>
-      <p><strong>Health:</strong> {health}</p>
-      <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
-      <button onClick={usePotion}>Use Potion</button>
-      {sceneChoices.map((choice, i) => (
-        <button key={i} onClick={() => handleChoice(choice)} style={{ margin: '0.5em' }}>
-          {choice.text}
-        </button>
-      ))}
-      <div style={{ marginTop: "1em" }}>
-        <strong>Adventure Log:</strong>
-        <ul>
-          {log.map((entry, i) => (
-            <li key={i}>{entry}</li>
-          ))}
-        </ul>
-      </div>
+  <div>
+    {/* Sound component added here */}
+    <Sound currentScene={currentScene} />
+
+    <p><strong>Seed:</strong> {globalSeed}</p>
+    <p><strong>Health:</strong> {health}</p>
+    <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
+    <button onClick={usePotion}>Use Potion</button>
+    {sceneChoices.map((choice, i) => (
+      <button key={i} onClick={() => handleChoice(choice)} style={{ margin: '0.5em' }}>
+        {choice.text}
+      </button>
+    ))}
+    <div style={{ marginTop: "1em" }}>
+      <strong>Adventure Log:</strong>
+      <ul>
+        {log.map((entry, i) => (
+          <li key={i}>{entry}</li>
+        ))}
+      </ul>
     </div>
-  );
-}
+  </div>
+);
+
 
 export default Game;

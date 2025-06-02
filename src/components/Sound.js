@@ -1,18 +1,21 @@
+// src/components/Sound.js
 import React, { useEffect, useRef } from 'react';
-import riverSound from '../../assets/sounds/river.wav';
-//import { useGameContext } from '../context/GameContext';
 
-const audioRef = useRef(null);
+function Sound({ currentScene }) {
+  const audioRef = useRef(null);
 
-useEffect(() => {
-  if (currentScene === "river") {
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => {}); // avoid autoplay error
-    }
-  } else {
-    if (audioRef.current) {
-      audioRef.current.pause();
+  useEffect(() => {
+    if (currentScene === "river") {
+      audioRef.current?.play().catch(() => {});
+    } else {
+      audioRef.current?.pause();
       audioRef.current.currentTime = 0;
     }
-  }
-}, [currentScene]);
+  }, [currentScene]);
+
+  return (
+    <audio ref={audioRef} src="/assets/sounds/river.wav" preload="auto" />
+  );
+}
+
+export default Sound;
