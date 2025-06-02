@@ -6,6 +6,7 @@ function App() {
     <div className="App">
       <h1>🧙‍♀️ Text RPG</h1>
       <Game />
+      <audio ref={audioRef} src="../assets/sound/river.wav" preload="auto" />
     </div>
   );
 }
