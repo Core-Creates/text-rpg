@@ -44,6 +44,7 @@ function Game() {
     if (choice.requires && !inventory.includes(choice.requires)) {
       setLog(prev => [...prev, `You need ${choice.requires} to do that.`]);
       return;
+      
     }
 
     const damage = choice.damage || 0;
