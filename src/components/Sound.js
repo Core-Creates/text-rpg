@@ -25,7 +25,7 @@ function Sound({ currentScene, currentText }) {
 
   return (
     <>
-      <audio ref={riverAudio} src="/assets/sounds/river.wav" preload="auto" loop />
+      <audio ref={riverAudio} src="/assets/sounds/river.wav" preload="auto" />
       <audio ref={growlAudio} src="/assets/sounds/growl.wav" preload="auto" />
     </>
   );
