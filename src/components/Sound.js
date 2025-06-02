@@ -19,7 +19,7 @@ function Sound({ currentScene, currentText, volume, muted }) {
     }
 
     // River sound
-    if (currentText?.toLowerCase().includes("river")) {
+    if (currentText?.toLowerCase().includes("river") || currentText?.toLowerCase().includes("stream") || currentScene === "river") {
       river?.play().catch(() => {});
     } else {
       river?.pause();
@@ -27,7 +27,7 @@ function Sound({ currentScene, currentText, volume, muted }) {
     }
 
     // Growl sound based on text
-    if (currentText?.toLowerCase().includes("growling")) {
+    if (currentText?.toLowerCase().includes("growling") || currentText?.toLowerCase().includes("growl") || currentScene === "forest") {
       growl?.play().catch(() => {});
     } else {
       growl?.pause();
@@ -37,8 +37,8 @@ function Sound({ currentScene, currentText, volume, muted }) {
 
   return (
     <>
-      <audio ref={riverAudio} src="/assets/sounds/river.wav" preload="auto" />
-      <audio ref={growlAudio} src="/assets/sounds/growlSound.wav" preload="auto" />
+      <audio ref={riverAudio} src="/assets/sounds/river.mp3" preload="auto" />
+      <audio ref={growlAudio} src="/assets/sounds/growlSound.mp3" preload="auto" />
     </>
   );
 }
