@@ -22,6 +22,9 @@
 # production
 /build
 
+public/assets/sounds/*.wav
+public/assets/sounds/*.mp4
+
 # misc
 .DS_Store
 .env.local
