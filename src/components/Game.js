@@ -82,6 +82,7 @@ function Game() {
     </div>
   </div>
 );
+}
 
 
 export default Game;
