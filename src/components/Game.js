@@ -4,6 +4,7 @@ import Sound from './Sound';
 // Game component for a text-based RPG with random elements
 
 function Game() {
+  const [gameWon, setGameWon] = useState(false);
   const [volume, setVolume] = useState(1); // default 50%
   const [muted, setMuted] = useState(false);
   const [currentScene, setCurrentScene] = useState('intro');
@@ -30,6 +31,9 @@ function Game() {
   };
 
   const handleChoice = (choice) => {
+    if (nextScene === "treasure" || nextScene === "passGate") {
+      setGameWon(true);
+    }
     if (choice.requires && !inventory.includes(choice.requires)) {
       setLog(prev => [...prev, `You need ${choice.requires} to do that.`]);
       return;
@@ -74,10 +78,9 @@ function Game() {
     ? scene.text(visited[currentScene], rand)
     : scene.text;
 
-  return (
+    return (
     <div>
-      {/* Sound component added here */}
-
+      {/* Sound component */}
       <Sound
         currentScene={currentScene}
         currentText={currentText}
@@ -89,12 +92,13 @@ function Game() {
       <p><strong>Health:</strong> {health}</p>
       <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
       <button onClick={usePotion}>Use Potion</button>
-      {sceneChoices.map((choice, i) => (
+
+      {!gameWon && sceneChoices.map((choice, i) => (
         <button
           key={i}
           onClick={() => {
-            enableAudio();      // ← wakes up the audio system
-            handleChoice(choice); // ← your existing logic
+            enableAudio();
+            handleChoice(choice);
           }}
           style={{ margin: '0.5em' }}
         >
@@ -110,6 +114,7 @@ function Game() {
           ))}
         </ul>
       </div>
+
       <div style={{ marginTop: "1em" }}>
         <h3>🔊 Audio Settings</h3>
         <label>
@@ -135,8 +140,15 @@ function Game() {
         </label>
       </div>
 
+      {/* ✅ Win Message */}
+      {gameWon && (
+        <div style={{ marginTop: "1em", backgroundColor: "#e6ffe6", padding: "1em", border: "2px solid green" }}>
+          🎉 <strong>You win! Thanks for playing!</strong> 🎉
+        </div>
+      )}
     </div>
   );
+
 }
 
 
