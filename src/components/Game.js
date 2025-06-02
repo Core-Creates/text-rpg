@@ -58,10 +58,14 @@ function Game() {
     ? scene.choices(visited[currentScene], rand)
     : scene.choices;
 
+  const currentText = typeof scene.text === 'function'
+  ? scene.text(visited[currentScene], rand)
+  : scene.text;
+
   return (
   <div>
     {/* Sound component added here */}
-    <Sound currentScene={currentScene} />
+    <Sound currentScene={currentScene} currentText={currentText} />
 
     <p><strong>Seed:</strong> {globalSeed}</p>
     <p><strong>Health:</strong> {health}</p>
