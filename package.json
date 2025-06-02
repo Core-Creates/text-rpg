@@ -4,6 +4,7 @@
   "private": false,
   "homepage": "https://core-creates.github.io/text-rpg",
   "dependencies": {
+    "@react-hook/window-size": "^3.1.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",

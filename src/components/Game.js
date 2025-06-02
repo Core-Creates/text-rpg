@@ -6,6 +6,8 @@ import Sound from './Sound';
 // Game component for a text-based RPG with random elements
 
 function Game() {
+  const [width, height] = useWindowSize();
+  const [nextScene, setNextScene] = useState('intro');
   const [gameWon, setGameWon] = useState(false);
   const [volume, setVolume] = useState(1); // default 50%
   const [muted, setMuted] = useState(false);
@@ -16,6 +18,9 @@ function Game() {
   const [visited, setVisited] = useState({ intro: true });
   const [sceneRandoms, setSceneRandoms] = useState({});
   const [globalSeed] = useState(() => Math.floor(Math.random() * 1000000));
+  const restartGame = () => {
+    window.location.reload(); // or reset all state manually
+  };
   const enableAudio = () => {
     const audios = document.querySelectorAll("audio");
     audios.forEach(audio => {
@@ -108,6 +113,7 @@ function Game() {
         </button>
       ))}
 
+
       <div style={{ marginTop: "1em" }}>
         <strong>Adventure Log:</strong>
         <ul>
@@ -144,10 +150,33 @@ function Game() {
 
       {/* ✅ Win Message */}
       {gameWon && (
-        <div style={{ marginTop: "1em", backgroundColor: "#e6ffe6", padding: "1em", border: "2px solid green" }}>
-          🎉 <strong>You win! Thanks for playing!</strong> 🎉
-        </div>
+        <>
+          {/* Fireworks animation */}
+          <Confetti width={width} height={height} />
+
+          {/* Win message */}
+          <div style={{ marginTop: "1em", backgroundColor: "#e6ffe6", padding: "1em", border: "2px solid green" }}>
+            🎉 <strong>You win! Thanks for playing!</strong> 🎉
+          </div>
+
+          {/* Restart button */}
+          <button
+            onClick={restartGame}
+            style={{
+              marginTop: "1em",
+              padding: "0.5em 1em",
+              fontSize: "1.1em",
+              backgroundColor: "#333",
+              color: "#fff",
+              borderRadius: "5px",
+              cursor: "pointer"
+            }}
+          >
+            🔁 Restart Game
+          </button>
+        </>
       )}
+
     </div>
   );
 
