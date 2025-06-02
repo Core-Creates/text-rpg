@@ -67,7 +67,13 @@ function Game() {
   return (
     <div>
       {/* Sound component added here */}
-      <Sound currentScene={currentScene} currentText={currentText} />
+
+      <Sound
+        currentScene={currentScene}
+        currentText={currentText}
+        volume={volume}
+        muted={muted}
+      />
 
       <p><strong>Seed:</strong> {globalSeed}</p>
       <p><strong>Health:</strong> {health}</p>
@@ -86,6 +92,31 @@ function Game() {
           ))}
         </ul>
       </div>
+      <div style={{ marginTop: "1em" }}>
+        <h3>🔊 Audio Settings</h3>
+        <label>
+          Volume: {Math.round(volume * 100)}%
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+            disabled={muted}
+          />
+        </label>
+        <br />
+        <label>
+          <input
+            type="checkbox"
+            checked={muted}
+            onChange={() => setMuted(!muted)}
+          />{" "}
+          Mute all sounds
+        </label>
+      </div>
+
     </div>
   );
 }
