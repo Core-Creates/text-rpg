@@ -29,7 +29,7 @@ function Game() {
       audio.play().then(() => {
         audio.pause();
         audio.currentTime = 0;
-      }).catch(() => {});
+      }).catch(() => { });
     });
   };
 
@@ -96,6 +96,7 @@ function Game() {
         log={log}
         volume={volume}
         muted={muted}
+        gameWon={gameWon}
       />
 
       <p><strong>Seed:</strong> {globalSeed}</p>
