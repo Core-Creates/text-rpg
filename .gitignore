@@ -16,7 +16,11 @@
 # dependencies
 /node_modules
 
-node_modules/
+node_modules/*
+
+*.wav
+*.mp4
+*.flac
 
 # testing
 /coverage
