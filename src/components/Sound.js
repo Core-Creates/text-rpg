@@ -18,16 +18,24 @@ function Sound({ currentScene, currentText, volume, muted }) {
       growl.muted = muted;
     }
 
-    // River sound
-    if (currentText?.toLowerCase().includes("river") || currentText?.toLowerCase().includes("stream") || currentScene === "river") {
+    // River sound logic
+    if (
+      currentText?.toLowerCase().includes("river") ||
+      currentText?.toLowerCase().includes("stream") ||
+      currentScene === "river"
+    ) {
       river?.play().catch(() => {});
     } else {
       river?.pause();
       river.currentTime = 0;
     }
 
-    // Growl sound based on text
-    if (currentText?.toLowerCase().includes("growling") || currentText?.toLowerCase().includes("growl") || currentScene === "forest") {
+    // Growl sound logic
+    if (
+      currentText?.toLowerCase().includes("growling") ||
+      currentText?.toLowerCase().includes("growl") ||
+      currentScene === "forest"
+    ) {
       growl?.play().catch(() => {});
     } else {
       growl?.pause();
@@ -37,8 +45,17 @@ function Sound({ currentScene, currentText, volume, muted }) {
 
   return (
     <>
-      <audio ref={riverAudio} src="/assets/sounds/river.mp3" preload="auto" />
-      <audio ref={growlAudio} src="/assets/sounds/growlSound.mp3" preload="auto" />
+      <audio 
+        ref={riverAudio} 
+        src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/river.mp3" 
+        preload="auto" 
+      />
+
+      <audio
+        ref={growlAudio}
+        src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/growlSound.mp3"
+        preload="auto"
+      />
     </>
   );
 }
