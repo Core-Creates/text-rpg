@@ -47,7 +47,7 @@ function Sound({ currentScene, currentText, volume, muted }) {
     <>
       <audio 
         ref={riverAudio} 
-        src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/river.mp3" 
+        src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/river.mp3o" 
         preload="auto" 
       />
 

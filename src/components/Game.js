@@ -38,33 +38,35 @@ function Game() {
   };
 
   const handleChoice = (choice) => {
-    if (nextScene === "treasure" || nextScene === "passGate") {
-      setGameWon(true);
-    }
-    if (choice.requires && !inventory.includes(choice.requires)) {
-      setLog(prev => [...prev, `You need ${choice.requires} to do that.`]);
-      return;
-      
-    }
+  const nextScene = choice.next; // ✅ Move this first
 
-    const damage = choice.damage || 0;
-    const item = choice.item;
-    const nextScene = choice.next;
+  if (nextScene === "treasure" || nextScene === "passGate") {
+    setGameWon(true);
+  }
 
-    setHealth(prev => Math.max(prev - damage, 0));
-    if (item) setInventory(prev => [...prev, item]);
+  if (choice.requires && !inventory.includes(choice.requires)) {
+    setLog(prev => [...prev, `You need ${choice.requires} to do that.`]);
+    return;
+  }
 
-    setVisited(prev => ({ ...prev, [nextScene]: true }));
-    setSceneRandoms(prev => ({ ...prev, [nextScene]: seededRandom(nextScene) }));
-    setCurrentScene(nextScene);
+  const damage = choice.damage || 0;
+  const item = choice.item;
 
-    const rand = sceneRandoms[nextScene] || seededRandom(nextScene);
-    const newText = typeof gameData[nextScene].text === 'function'
-      ? gameData[nextScene].text(visited[nextScene], rand)
-      : gameData[nextScene].text;
+  setHealth(prev => Math.max(prev - damage, 0));
+  if (item) setInventory(prev => [...prev, item]);
 
-    setLog(prev => [...prev, newText]);
-  };
+  setVisited(prev => ({ ...prev, [nextScene]: true }));
+  setSceneRandoms(prev => ({ ...prev, [nextScene]: seededRandom(nextScene) }));
+  setCurrentScene(nextScene);
+
+  const rand = sceneRandoms[nextScene] || seededRandom(nextScene);
+  const newText = typeof gameData[nextScene].text === 'function'
+    ? gameData[nextScene].text(visited[nextScene], rand)
+    : gameData[nextScene].text;
+
+  setLog(prev => [...prev, newText]);
+};
+
 
   const usePotion = () => {
     if (inventory.includes("Potion")) {
