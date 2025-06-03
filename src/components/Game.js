@@ -43,7 +43,7 @@ function Game() {
       audio.play().then(() => {
         audio.pause();
         audio.currentTime = 0;
-      }).catch(() => {});
+      }).catch(() => { });
     });
   };
 
@@ -186,26 +186,37 @@ function Game() {
 
           {showCredits && (
             <div style={{
-              marginTop: "1em",
+              position: "fixed",
+              top: "1rem",
+              right: "1rem",
+              backgroundColor: "#61DAFB",
+              color: "#000",
+              padding: "1rem",
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+              zIndex: 1000,
+              maxWidth: "320px",
               fontSize: "0.9em",
-              color: "#555",
-              textAlign: "center",
-              transition: "opacity 1s ease-in",
-              opacity: showCredits ? 1 : 0
+              fontFamily: "'Caudex', serif",
+              animation: "fadeIn 1s ease-in-out forwards",
+              lineHeight: "1.4",
+              class: "container"
             }}>
-              <p><strong>Credits:</strong></p>
-              <p>Created by Corrina Alcoser</p>
-              <p>Sound effects hosted on AWS S3</p>
-              <p>All sounds were obtained from freesound.org</p>
-              <p>Cave Sound made by HermanDV</p>
-              <p>Fanfare Sound made by bone666138</p>
-              <p>Footsteps Sound made by ScreenplayTheater</p>
-              <p>Growl Sound made by FK_Prod</p>
-              <p>River Sound made by klankbeeld</p>
-              <p>Special thanks to the React community</p>
-              <p>Game Engine & UI built with React.js</p>
+              <strong>🎖️ Credits</strong>
+              <ul style={{ paddingLeft: "1.2em", margin: "0.5em 0 0" }}>
+                <li>Created by Corrina Alcoser</li>
+                <li>Sounds hosted on AWS S3</li>
+                <li>All sounds: freesound.org</li>
+                <li>Cave: HermanDV</li>
+                <li>Fanfare: bone666138</li>
+                <li>Footsteps: ScreenplayTheater</li>
+                <li>Growl: FK_Prod</li>
+                <li>River: klankbeeld</li>
+                <li>Built with React.js</li>
+              </ul>
             </div>
           )}
+
 
           {showRestart && (
             <button

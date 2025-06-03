@@ -3,7 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Caudex&family=Cinzel&display=swap');
 
 html {
-    cursor: url("https://alcoser-cursor-bucket.s3.us-east-2.amazonaws.com/sword-cursor.ico"), default;
+    cursor: url("https://alcoser-cursor-bucket.s3.us-east-2.amazonaws.com/pixil-frame-0.cur"), default;
     /* just change the cursor.ico path to your location */
 }
 body {
@@ -51,6 +51,21 @@ label {
   font-family: 'Cinzel', serif;
   display: block;
   margin-top: 1rem;
+}
+.card {
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+}
+
+/* On mouse-over, add a deeper shadow */
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+/* Add some padding inside the card container */
+.container {
+  padding: 2px 16px;
 }
 
 .adventure-log {
