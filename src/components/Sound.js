@@ -1,95 +1,100 @@
-// src/components/Sound.js
-import React, { useEffect, useRef, useState } from 'react';
+// ********************************** Imports **********************************
+import React, { useEffect, useRef } from 'react';
 
+// ********************************** Sound Component **********************************
+/**
+ * Handles all sound logic based on scene, text, and game state.
+ * Uses refs to control HTML5 audio elements.
+ */
 function Sound({ currentScene, currentText, log, volume, muted, gameWon }) {
-  const riverAudio = useRef(null);
-  const growlAudio = useRef(null);
-  const footstepsAudio = useRef(null);
-  const caveAudio = useRef(null);
-  const winAudio = useRef(null);
+  // ********************************** Audio References **********************************
+  const riverAudio = useRef(null);     // River background sound
+  const growlAudio = useRef(null);     // Monster growl sound
+  const caveAudio = useRef(null);      // Ambient cave sound
+  const winFanfare = useRef(null);     // Victory fanfare
+  const footstepsAudio = useRef(null); // Footstep walking sound
 
-  const [canPlaySound, setCanPlaySound] = useState(false);
-
+  // ********************************** Sound Logic Hook **********************************
   useEffect(() => {
-    const enable = () => {
-      setCanPlaySound(true);
-      window.removeEventListener("click", enable);
-    };
-    window.addEventListener("click", enable);
-    return () => window.removeEventListener("click", enable);
-  }, []);
+    // Get all audio refs
+    const river = riverAudio.current;
+    const growl = growlAudio.current;
+    const cave = caveAudio.current;
+    const fanfare = winFanfare.current;
+    const footsteps = footstepsAudio.current;
 
-  useEffect(() => {
-    if (!canPlaySound) return;
+    // Apply global audio settings
+    [river, growl, cave, fanfare, footsteps].forEach(sound => {
+      if (sound) {
+        sound.volume = volume;
+        sound.muted = muted;
+      }
+    });
 
     const recentLog = log.slice(-3).join(" ").toLowerCase();
-    const text = currentText?.toLowerCase() || "";
 
-    const audios = {
-      river: riverAudio.current,
-      growl: growlAudio.current,
-      footsteps: footstepsAudio.current,
-      cave: caveAudio.current,
-      win: winAudio.current,
-    };
-
-    // Apply volume/mute to all
-    for (const key in audios) {
-      if (audios[key]) {
-        audios[key].volume = volume;
-        audios[key].muted = muted;
-      }
-    }
-
-    // River sound
-    if (text.includes("river") || recentLog.includes("stream")) {
-      if (audios.river?.paused) audios.river.play().catch(() => {});
+    // ********************************** River Logic **********************************
+    if (
+      currentScene === "river" ||
+      currentText?.toLowerCase().includes("river") ||
+      recentLog.includes("river") || recentLog.includes("stream")
+    ) {
+      river?.play().catch(() => {});
     } else {
-      audios.river?.pause();
-      audios.river.currentTime = 0;
+      river?.pause();
+      river.currentTime = 0;
     }
 
-    // Growling
-    if (text.includes("growl") || recentLog.includes("growl")) {
-      if (audios.growl?.paused) audios.growl.play().catch(() => {});
+    // ********************************** Growl Logic **********************************
+    if (
+      currentText?.toLowerCase().includes("growl") ||
+      recentLog.includes("growl")
+    ) {
+      growl?.play().catch(() => {});
     } else {
-      audios.growl?.pause();
-      audios.growl.currentTime = 0;
+      growl?.pause();
+      growl.currentTime = 0;
     }
 
-    // Footsteps (movement indication)
-    if (recentLog.includes("path") || text.includes("walk") || text.includes("step")) {
-      if (audios.footsteps?.paused) audios.footsteps.play().catch(() => {});
+    // ********************************** Cave Logic **********************************
+    if (
+      currentScene === "cave" ||
+      currentText?.toLowerCase().includes("cave") ||
+      recentLog.includes("cave")
+    ) {
+      cave?.play().catch(() => {});
     } else {
-      audios.footsteps?.pause();
-      audios.footsteps.currentTime = 0;
+      cave?.pause();
+      cave.currentTime = 0;
     }
 
-    // Cave echo
-    if (currentScene.includes("cave") || text.includes("echo")) {
-      if (audios.cave?.paused) audios.cave.play().catch(() => {});
+    // ********************************** Footsteps Logic **********************************
+    if (
+      currentText?.toLowerCase().includes("walk") ||
+      recentLog.includes("walk") ||
+      recentLog.includes("step") ||
+      recentLog.includes("path")
+    ) {
+      footsteps?.play().catch(() => {});
     } else {
-      audios.cave?.pause();
-      audios.cave.currentTime = 0;
+      footsteps?.pause();
+      footsteps.currentTime = 0;
     }
 
-    // Victory fanfare
-    if (gameWon) {
-      audios.win?.play().catch(() => {});
-    } else {
-      audios.win?.pause();
-      audios.win.currentTime = 0;
+    // ********************************** Fanfare Logic **********************************
+    if (gameWon && fanfare) {
+      fanfare.play().catch(() => {});
     }
+  }, [currentScene, currentText, log, volume, muted, gameWon]);
 
-  }, [canPlaySound, currentScene, currentText, log, volume, muted, gameWon]);
-
+  // ********************************** Render Audio Tags **********************************
   return (
     <>
       <audio ref={riverAudio} src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/river.mp3" preload="auto" loop />
       <audio ref={growlAudio} src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/growlSound.mp3" preload="auto" />
+      <audio ref={caveAudio} src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/cave-ambience.mp3" preload="auto" loop />
+      <audio ref={winFanfare} src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/fanfare.mp3" preload="auto" />
       <audio ref={footstepsAudio} src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/footsteps.mp3" preload="auto" />
-      <audio ref={caveAudio} src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/caveEcho.mp3" preload="auto" />
-      <audio ref={winAudio} src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/victoryFanfare.mp3" preload="auto" />
     </>
   );
 }
