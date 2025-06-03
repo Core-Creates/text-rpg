@@ -1,11 +1,24 @@
 // src/components/Sound.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-function Sound({ currentScene, currentText, volume, muted }) {
+function Sound({ currentScene, currentText, log, volume, muted }) {
   const riverAudio = useRef(null);
   const growlAudio = useRef(null);
+  const [canPlaySound, setCanPlaySound] = useState(false);
+
+  // Enable sound after user interacts
+  useEffect(() => {
+    const handleUserGesture = () => {
+      setCanPlaySound(true);
+      window.removeEventListener("click", handleUserGesture);
+    };
+    window.addEventListener("click", handleUserGesture);
+    return () => window.removeEventListener("click", handleUserGesture);
+  }, []);
 
   useEffect(() => {
+    if (!canPlaySound) return;
+
     const river = riverAudio.current;
     const growl = growlAudio.current;
 
@@ -18,39 +31,50 @@ function Sound({ currentScene, currentText, volume, muted }) {
       growl.muted = muted;
     }
 
+    const recentLog = log.slice(-3).join(" ").toLowerCase();
+    const text = currentText?.toLowerCase() || "";
+
     // River sound logic
-    if (
-      currentText?.toLowerCase().includes("river") ||
-      currentText?.toLowerCase().includes("stream") ||
-      currentScene === "river"
-    ) {
-      river?.play().catch(() => {});
-    } else {
-      river?.pause();
-      river.currentTime = 0;
+    const shouldPlayRiver = (
+      currentScene === "river" ||
+      text.includes("river") || text.includes("stream") ||
+      recentLog.includes("river") || recentLog.includes("stream")
+    );
+
+    if (river) {
+      if (shouldPlayRiver && river.paused) {
+        river.play().catch(() => {});
+      } else if (!shouldPlayRiver && !river.paused) {
+        river.pause();
+        river.currentTime = 0;
+      }
     }
 
     // Growl sound logic
-    if (
-      currentText?.toLowerCase().includes("growling") ||
-      currentText?.toLowerCase().includes("growl") ||
-      currentScene === "forest"
-    ) {
-      growl?.play().catch(() => {});
-    } else {
-      growl?.pause();
-      growl.currentTime = 0;
+    const shouldPlayGrowl = (
+      text.includes("growl") ||
+      recentLog.includes("growl")
+    );
+
+    if (growl) {
+      if (shouldPlayGrowl && growl.paused) {
+        growl.play().catch(() => {});
+      } else if (!shouldPlayGrowl && !growl.paused) {
+        growl.pause();
+        growl.currentTime = 0;
+      }
     }
-  }, [currentScene, currentText, volume, muted]);
+
+  }, [canPlaySound, currentScene, currentText, log, volume, muted]);
 
   return (
     <>
-      <audio 
-        ref={riverAudio} 
-        src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/river.mp3o" 
-        preload="auto" 
+      <audio
+        ref={riverAudio}
+        src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/river.mp3"
+        preload="auto"
+        loop
       />
-
       <audio
         ref={growlAudio}
         src="https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com/growlSound.mp3"

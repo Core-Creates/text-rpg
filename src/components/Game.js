@@ -1,9 +1,8 @@
 import { useWindowSize } from '@react-hook/window-size';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Confetti from 'react-confetti';
 import gameData from '../gameData';
 import Sound from './Sound';
-import { motion, AnimatePresence } from 'framer-motion';
 
 function Game() {
   const [width, height] = useWindowSize();
@@ -17,7 +16,12 @@ function Game() {
   const [visited, setVisited] = useState({ intro: true });
   const [sceneRandoms, setSceneRandoms] = useState({});
   const [globalSeed] = useState(() => Math.floor(Math.random() * 1000000));
-  const [showGame, setShowGame] = useState(true);
+  const [fadingOut, setFadingOut] = useState(false);
+
+  const restartGame = () => {
+    setFadingOut(true);
+    setTimeout(() => window.location.reload(), 500);
+  };
 
   const enableAudio = () => {
     const audios = document.querySelectorAll("audio");
@@ -25,7 +29,7 @@ function Game() {
       audio.play().then(() => {
         audio.pause();
         audio.currentTime = 0;
-      }).catch(() => { });
+      }).catch(() => {});
     });
   };
 
@@ -84,114 +88,90 @@ function Game() {
     ? scene.text(visited[currentScene], rand)
     : scene.text;
 
-  const restartGame = () => {
-    setShowGame(false);
-    setTimeout(() => {
-      setCurrentScene('intro');
-      setHealth(100);
-      setInventory([]);
-      setLog([gameData.intro.text]);
-      setVisited({ intro: true });
-      setSceneRandoms({});
-      setGameWon(false);
-      setShowGame(true);
-    }, 800);
-  };
-
   return (
-    <AnimatePresence mode="wait">
-      {showGame && (
-        <motion.div
-          key="game-ui"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
+    <div className={fadingOut ? 'fade-out' : ''}>
+      <Sound
+        currentScene={currentScene}
+        currentText={currentText}
+        log={log}
+        volume={volume}
+        muted={muted}
+      />
+
+      <p><strong>Seed:</strong> {globalSeed}</p>
+      <p><strong>Health:</strong> {health}</p>
+      <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
+      <button onClick={usePotion}>Use Potion</button>
+
+      {!gameWon && sceneChoices.map((choice, i) => (
+        <button
+          key={i}
+          onClick={() => {
+            enableAudio();
+            handleChoice(choice);
+          }}
+          style={{ margin: '0.5em' }}
         >
-          <Sound
-            currentScene={currentScene}
-            currentText={currentText}
-            volume={volume}
-            muted={muted}
-          />
+          {choice.text}
+        </button>
+      ))}
 
-          <p><strong>Seed:</strong> {globalSeed}</p>
-          <p><strong>Health:</strong> {health}</p>
-          <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
-          <button onClick={usePotion}>Use Potion</button>
-
-          {!gameWon && sceneChoices.map((choice, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                enableAudio();
-                handleChoice(choice);
-              }}
-              style={{ margin: '0.5em' }}
-            >
-              {choice.text}
-            </button>
+      <div style={{ marginTop: "1em" }}>
+        <strong>Adventure Log:</strong>
+        <ul>
+          {log.map((entry, i) => (
+            <li key={i}>{entry}</li>
           ))}
+        </ul>
+      </div>
 
-          <div style={{ marginTop: "1em" }}>
-            <strong>Adventure Log:</strong>
-            <ul>
-              {log.map((entry, i) => (
-                <li key={i}>{entry}</li>
-              ))}
-            </ul>
+      <div style={{ marginTop: "1em" }}>
+        <h3>🔊 Audio Settings</h3>
+        <label>
+          Volume: {Math.round(volume * 100)}%
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+            disabled={muted}
+          />
+        </label>
+        <br />
+        <label>
+          <input
+            type="checkbox"
+            checked={muted}
+            onChange={() => setMuted(!muted)}
+          /> Mute all sounds
+        </label>
+      </div>
+
+      {gameWon && (
+        <>
+          <Confetti width={width} height={height} />
+          <div style={{ marginTop: "1em", backgroundColor: "#e6ffe6", padding: "1em", border: "2px solid green" }}>
+            🎉 <strong>You win! Thanks for playing!</strong> 🎉
           </div>
-
-          <div style={{ marginTop: "1em" }}>
-            <h3>🔊 Audio Settings</h3>
-            <label>
-              Volume: {Math.round(volume * 100)}%
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={volume}
-                onChange={(e) => setVolume(parseFloat(e.target.value))}
-                disabled={muted}
-              />
-            </label>
-            <br />
-            <label>
-              <input
-                type="checkbox"
-                checked={muted}
-                onChange={() => setMuted(!muted)}
-              />{" "}
-              Mute all sounds
-            </label>
-          </div>
-
-          {gameWon && (
-            <>
-              <Confetti width={width} height={height} />
-              <div style={{ marginTop: "1em", backgroundColor: "#e6ffe6", padding: "1em", border: "2px solid green" }}>
-                🎉 <strong>You win! Thanks for playing!</strong> 🎉
-              </div>
-              <button
-                onClick={restartGame}
-                style={{
-                  marginTop: "1em",
-                  padding: "0.5em 1em",
-                  fontSize: "1.1em",
-                  backgroundColor: "#333",
-                  color: "#fff",
-                  borderRadius: "5px",
-                  cursor: "pointer"
-                }}
-              >
-                🔁 Restart Game
-              </button>
-            </>
-          )}
-        </motion.div>
+          <button
+            onClick={restartGame}
+            style={{
+              marginTop: "1em",
+              padding: "0.5em 1em",
+              fontSize: "1.1em",
+              backgroundColor: "#333",
+              color: "#fff",
+              borderRadius: "5px",
+              cursor: "pointer"
+            }}
+          >
+            🔁 Restart Game
+          </button>
+        </>
       )}
-    </AnimatePresence>
+    </div>
   );
 }
 
