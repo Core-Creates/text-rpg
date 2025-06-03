@@ -2,6 +2,10 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Caudex&family=Cinzel&display=swap');
 
+html {
+    cursor: url("https://alcoser-cursor-bucket.s3.us-east-2.amazonaws.com/sword-cursor.ico"), default;
+    /* just change the cursor.ico path to your location */
+}
 body {
   display: flex;
   justify-content: center;
@@ -18,6 +22,7 @@ h1, h2, h3, .title {
   font-size: 5rem;
   color: #61DAFB;
   text-shadow: 1px 1px 2px rgba(17, 26, 79, 0.606);
+  padding-bottom: 1rem;
 
 }
 
@@ -55,6 +60,49 @@ label {
   background-color: #fff9f2;
   font-style: italic;
 }
+
+.audio-settings-wrapper {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  text-align: right;
+  z-index: 1000;
+}
+
+.audio-dropdown {
+  margin-top: 0.5rem;
+  background-color: #222;
+  border: 1px solid #5cfb91f6;
+  padding: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(92, 251, 145, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.audio-dropdown label {
+  color: #fff;
+  font-family: 'Caudex', serif;
+}
+
+.audio-settings-toggle {
+  background-color: #5cfb91f6;
+  color: #222;
+  font-weight: bold;
+  border-radius: 6px;
+  border: none;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.audio-settings-toggle:hover {
+  background-color: #4bd87c;
+}
+
 
 /* Optional class for fantasy borders */
 .fantasy-box {
