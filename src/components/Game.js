@@ -117,18 +117,63 @@ function Game() {
       <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
       <button onClick={usePotion}>Use Potion</button>
 
-      {!gameWon && sceneChoices.map((choice, i) => (
-        <button
-          key={i}
-          onClick={() => {
-            enableAudio();
-            handleChoice(choice);
-          }}
-          style={{ margin: '0.5em' }}
-        >
-          {choice.text}
-        </button>
-      ))}
+      {gameWon && (
+        <>
+          <Confetti width={width} height={height} />
+          <div style={{
+            marginTop: "1em",
+            backgroundColor: "#e6ffe6",
+            padding: "1em",
+            border: "2px solid green",
+            textAlign: "center"
+          }}>
+            🎉 <strong>You win! Thanks for playing!</strong> 🎉
+          </div>
+
+          {showCredits && (
+            <div style={{
+              marginTop: "1em",
+              fontSize: "0.9em",
+              color: "#555",
+              textAlign: "center",
+              transition: "opacity 1s ease-in",
+              opacity: showCredits ? 1 : 0
+            }}>
+              <p><strong>Credits:</strong></p>
+              <p>Created by Corrina Alcoser</p>
+              <p>Sound effects hosted on AWS S3</p>
+              <p>All sounds were obtained from freesound.org</p>
+              <p>Cave Sound made by HermanDV</p>
+              <p>Fanfare Sound made by bone666138</p>
+              <p>Footsteps Sound made by ScreenplayTheater</p>
+              <p>Growl Sound made by FK_Prod</p>
+              <p>River Sound made by klankbeeld</p>
+              <p>Special thanks to the React community</p>
+              <p>Game Engine & UI built with React.js</p>
+            </div>
+          )}
+
+          {showRestart && (
+            <button
+              onClick={restartGame}
+              style={{
+                marginTop: "1.5em",
+                padding: "0.75em 1.25em",
+                fontSize: "1.1em",
+                backgroundColor: "#333",
+                color: "#fff",
+                borderRadius: "8px",
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.3s ease"
+              }}
+            >
+              🔁 Restart Game
+            </button>
+          )}
+        </>
+      )}
+
 
       <div style={{ marginTop: "1em" }}>
         <strong>Adventure Log:</strong>
