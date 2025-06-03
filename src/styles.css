@@ -70,7 +70,18 @@ label {
   transition: opacity 0.5s ease-out;
 }
 
-/* Start of mobile styles */
+.fade-in {
+  opacity: 0;
+  animation: fadeIn ease 2s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Start of mobile styles ******************************************************************************************************/
 /* Mobile styles */
 
 @media (max-width: 600px) {

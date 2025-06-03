@@ -17,7 +17,20 @@ function Game() {
   const [sceneRandoms, setSceneRandoms] = useState({});
   const [globalSeed] = useState(() => Math.floor(Math.random() * 1000000));
   const [fadingOut, setFadingOut] = useState(false);
+  const [showCredits, setShowCredits] = useState(false);
+  const [showRestart, setShowRestart] = useState(false);
 
+  useEffect(() => {
+    if (gameWon) {
+      // Show credits after 2 seconds, restart button after 4 seconds
+      const creditTimer = setTimeout(() => setShowCredits(true), 2000);
+      const restartTimer = setTimeout(() => setShowRestart(true), 4000);
+      return () => {
+        clearTimeout(creditTimer);
+        clearTimeout(restartTimer);
+      };
+    }
+  }, [gameWon]);
   const restartGame = () => {
     setFadingOut(true);
     setTimeout(() => window.location.reload(), 500);
