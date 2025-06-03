@@ -1,98 +1,93 @@
-import React, { useState } from 'react';
-import gameData from '../gameData';
+// ********************************** Game Data Module **********************************
+// This file defines the structure and logic for all scenes in the game.
+// Each scene may include dynamic text, choices, items, and conditional effects.
 
-// ********************************** Main Game Component **********************************
-function Game() {
-  // ********************************** State Management **********************************
+const gameData = {
+  // ********************************** Intro Scene **********************************
+  // The player wakes up in a forest and can choose a direction to explore.
+  intro: {
+    text: "You wake up in a dark forest. There are paths leading north and east.",
+    choices: [
+      { text: "Go north", next: "cave" },
+      { text: "Go east", next: "river" }
+    ]
+  },
 
-  const [currentScene, setCurrentScene] = useState('intro');       // Current scene name
-  const [health, setHealth] = useState(100);                       // Player health value
-  const [inventory, setInventory] = useState([]);                  // Items currently held by player
-  const [log, setLog] = useState([gameData.intro.text]);          // Adventure log tracking narrative events
-  const [visited, setVisited] = useState({ intro: true });         // Tracks which scenes have been visited
-  const [sceneRandoms, setSceneRandoms] = useState({});            // Pre-generated pseudo-random values per scene
-  const [globalSeed] = useState(() => Math.floor(Math.random() * 1000000));  // Consistent random seed for game session
+  // ********************************** Cave Scene **********************************
+  // The cave has different dialogue if already visited. Introduces danger (bear).
+  cave: {
+    text: (visited, rand) =>
+      visited
+        ? "The cave is empty now, echoing with silence."
+        : "You enter a cold cave. You hear growling ahead.",
+    choices: (visited) =>
+      visited
+        ? [{ text: "Go back", next: "intro" }]
+        : [
+            { text: "Investigate the growling", next: "bear", damage: 20 },
+            { text: "Retreat quietly", next: "intro" }
+          ]
+  },
 
-  // ********************************** Random Number Generator **********************************
-  const seededRandom = (sceneName) => {
-    // Generates a reproducible random value per scene based on globalSeed
-    const x = Math.sin(globalSeed + sceneName.length * 97) * 10000;
-    return x - Math.floor(x);
-  };
+  // ********************************** River Scene **********************************
+  // Player can search the river for items or follow it to the gate.
+  river: {
+    text: "A peaceful river flows here. Something glimmers under the water.",
+    choices: [
+      { text: "Search the water", next: "findPotion", item: "Potion" },
+      { text: "Follow the river", next: "gate" },
+      { text: "Return to the forest", next: "intro" }
+    ]
+  },
 
-  // ********************************** Handle Player Choice **********************************
-  const handleChoice = (choice) => {
-    // Check for required item before allowing the choice
-    if (choice.requires && !inventory.includes(choice.requires)) {
-      setLog(prev => [...prev, `You need ${choice.requires} to do that.`]);
-      return;
-    }
+  // ********************************** Find Potion Scene **********************************
+  // Grants a healing item to the player.
+  findPotion: {
+    text: "You find a healing potion and add it to your inventory.",
+    choices: [{ text: "Go back to the river", next: "river" }]
+  },
 
-    const damage = choice.damage || 0;     // Damage inflicted by choice (if any)
-    const item = choice.item;              // Item gained from this choice
-    const nextScene = choice.next;         // Scene to transition to next
+  // ********************************** Bear Encounter **********************************
+  // A trap scene that causes damage and sends the player back.
+  bear: {
+    text: "A bear chases you out! You barely escape.",
+    choices: [{ text: "Run back to the forest", next: "intro" }]
+  },
 
-    setHealth(prev => Math.max(prev - damage, 0)); // Apply damage if applicable
-    if (item) setInventory(prev => [...prev, item]); // Add item to inventory if applicable
+  // ********************************** Gate Scene **********************************
+  // Can only be opened with the Emblem item. Links to shrine path.
+  gate: {
+    text: (visited, rand) =>
+      visited
+        ? "The gate still stands, locked and unmoving."
+        : "You come across a large gate with a glowing emblem.",
+    choices: [
+      { text: "Try to open the gate", next: "passGate", requires: "Emblem" },
+      { text: "Search nearby", next: "sidePath" },
+      { text: "Go back", next: "river" }
+    ]
+  },
 
-    setVisited(prev => ({ ...prev, [nextScene]: true }));                  // Mark new scene as visited
-    setSceneRandoms(prev => ({ ...prev, [nextScene]: seededRandom(nextScene) })); // Pre-compute RNG for scene
-    setCurrentScene(nextScene);                                            // Move to new scene
+  // ********************************** Side Path Scene **********************************
+  // Leads to shrine where player can collect the Emblem.
+  sidePath: {
+    text: "You find a hidden path leading to a shrine.",
+    choices: [{ text: "Enter the shrine", next: "shrine" }]
+  },
 
-    // Get new scene text (function or static string)
-    const rand = sceneRandoms[nextScene] || seededRandom(nextScene);
-    const newText = typeof gameData[nextScene].text === 'function'
-      ? gameData[nextScene].text(visited[nextScene], rand)
-      : gameData[nextScene].text;
+  // ********************************** Shrine Scene **********************************
+  // Player acquires the Emblem needed to pass the gate.
+  shrine: {
+    text: "An ancient shrine with an Emblem on the altar. You take it.",
+    choices: [{ text: "Return to the gate", next: "gate", item: "Emblem" }]
+  },
 
-    setLog(prev => [...prev, newText]); // Append new text to adventure log
-  };
+  // ********************************** Pass Gate Scene **********************************
+  // Final scene that ends the game with victory.
+  passGate: {
+    text: "The gate opens and you step through into the light. You win!",
+    choices: []
+  }
+};
 
-  // ********************************** Use Potion Action **********************************
-  const usePotion = () => {
-    if (inventory.includes("Potion")) {
-      setHealth(Math.min(100, health + 20));                        // Heal up to 100 max
-      setInventory(inventory.filter(item => item !== "Potion"));   // Remove used potion
-      setLog([...log, "You used a potion and restored health!"]);
-    } else {
-      setLog([...log, "No potions left!"]);
-    }
-  };
-
-  // ********************************** Scene & Choice Preparation **********************************
-  const rand = sceneRandoms[currentScene] || seededRandom(currentScene); // Get stored or generate random
-  const scene = gameData[currentScene];                                  // Current scene data
-  const sceneChoices = typeof scene.choices === 'function'
-    ? scene.choices(visited[currentScene], rand)                         // Handle dynamic choices
-    : scene.choices;
-
-  // ********************************** Render UI **********************************
-  return (
-    <div>
-      {/* Game Stats */}
-      <p><strong>Seed:</strong> {globalSeed}</p>
-      <p><strong>Health:</strong> {health}</p>
-      <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
-      <button onClick={usePotion}>Use Potion</button>
-
-      {/* Render Scene Choices */}
-      {sceneChoices.map((choice, i) => (
-        <button key={i} onClick={() => handleChoice(choice)} style={{ margin: '0.5em' }}>
-          {choice.text}
-        </button>
-      ))}
-
-      {/* Render Adventure Log */}
-      <div style={{ marginTop: "1em" }}>
-        <strong>Adventure Log:</strong>
-        <ul>
-          {log.map((entry, i) => (
-            <li key={i}>{entry}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-export default Game;
+export default gameData;
