@@ -81,7 +81,9 @@ src/
     Game.jsx            State machine: health, inventory, visited scenes, win state
     Game.test.jsx       Playthrough tests driven through the UI
     Sound.jsx           Audio layer, matches sounds to scene and log keywords
-    Ornaments.jsx       Gilt corner flourishes, divider and heraldic mark, as SVG
+    Ornaments.jsx       Deckle filter, vine border, flourishes, divider, wyvern
+    Motifs.jsx          Ten woodcut blocks and the scene they each mark
+    Motifs.test.jsx     Keeps the block mapping in step with the scene graph
     WorldMap.jsx        The chart, with visited places lit and the rest dim
     WorldMap.test.jsx   Fog of war and current-location tests
   mapLayout.js          Derives map positions and edges from the scene graph
@@ -185,6 +187,20 @@ with a shaded gutter between. The pages are laid out in source order recto then
 verso, so a screen reader and a narrow viewport both get the title, the story and
 the choices before the map; `order` only moves the verso left once there is room
 for two columns.
+
+Each line of the record after the first carries a **woodcut block** in the
+margin, keyed to the kind of place it was written in: a tree for the forest and
+the thicket, waves for the river and the ford, a skull for the ossuary, a paw for
+the bear. Ten blocks serve sixteen scenes, because the cut marks the *kind* of
+place rather than the place, which is how a printer with a drawerful of blocks
+would have done it. `Motifs.test.jsx` fails if a new scene has no block, or if a
+block points at a scene that no longer exists.
+
+The opening line takes no block. It has its versal, and two illuminations on one
+line would fight.
+
+Log entries therefore carry the scene they were written in alongside their text,
+which is also why `Sound.jsx` reads `entry.text` rather than the entry itself.
 
 The world map is treated as the page's miniature: an ultramarine ground powdered
 with gilt bezants, under an ogee arch. `mapLayout.js` reserves `PAD_TOP` of

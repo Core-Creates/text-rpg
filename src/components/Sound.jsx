@@ -31,7 +31,13 @@ function Sound({ currentScene, currentText, log, volume, muted, gameWon }) {
       }
     });
 
-    const recentLog = log.slice(-3).join(" ").toLowerCase();
+    // Log entries carry the place they were written in as well as their text,
+    // so the keyword match runs over the text alone.
+    const recentLog = log
+      .slice(-3)
+      .map(entry => entry.text)
+      .join(" ")
+      .toLowerCase();
 
     // ********************************** River Logic **********************************
     if (
