@@ -66,6 +66,11 @@ src/
     Game.jsx            State machine: health, inventory, visited scenes, win state
     Game.test.jsx       Playthrough tests driven through the UI
     Sound.jsx           Audio layer, matches sounds to scene and log keywords
+    Ornaments.jsx       Gilt corner flourishes, divider and heraldic mark, as SVG
+    WorldMap.jsx        The chart, with visited places lit and the rest dim
+    WorldMap.test.jsx   Fog of war and current-location tests
+  mapLayout.js          Derives map positions and edges from the scene graph
+  mapLayout.test.js     Layout, label fit and edge derivation tests
 ```
 
 ## Adding a scene
@@ -108,14 +113,42 @@ The tests in `src/gameData.test.js` walk the graph automatically, so a new scene
 is checked for broken links, reachability from the intro, unwinnable item
 requirements and accidental dead ends without writing anything new.
 
+## The Known World
+
+The map is a chart of the scene graph, and it is derived rather than drawn. Add a
+scene to `gameData.js` and it appears on the map on the next render, positioned
+by a breadth-first layering from the intro: distance from the start gives the
+row, order of discovery gives the column.
+
+Places you have stood are lit in gold and named. Places you have only heard of
+stay dim and nameless, so the chart doubles as a record of where you have been
+and a reason to keep walking. A lozenge marks where you stand.
+
+Give a scene a `label` for its name on the map. Without one it falls back to the
+scene key split on camelCase, so `sidePath` reads as "Side Path". Labels have to
+be short: SVG text neither wraps nor clips, so an over-long label spills across
+the chart. `src/mapLayout.test.js` estimates the rendered width and fails if a
+label no longer fits its box.
+
 ## Look and feel
 
-The page is treated as a leaf of an illuminated codex rather than a game HUD.
-Parchment ground, a ruled and framed writing area, a rubricated hierarchy, and a
+A dark hall holding a single gilt-framed leaf. The parchment stays as the reading
+surface, because long text needs it, but it now sits on near-black with a gold
+hairline, drawn corner flourishes and a heraldic mark, the way the reference deck
+floats every lit panel on darkness.
+
+Inside the frame the page is an illuminated codex rather than a game HUD:
+parchment ground, a ruled and framed writing area, a rubricated hierarchy, and a
 gilt versal opening the adventure log.
+
+Ornaments in `src/components/Ornaments.jsx` are inline SVG, drawn from scratch
+rather than traced from stock artwork. SVG scales to any frame size, inherits
+colour through `currentColor` so one shape serves every accent, and needs no
+`img-src` entry in the Content Security Policy.
 
 | Token | Value | Used for |
 | --- | --- | --- |
+| `--hall` | `#12100D` | The dark hall the leaf sits in |
 | `--parchment` | `#ECEADA` | Page ground |
 | `--ink` | `#21140F` | Body text |
 | `--oxblood` | `#571E10` | Title, win panel, hover fills |
