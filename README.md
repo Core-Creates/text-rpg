@@ -6,8 +6,9 @@ downriver. Find the Emblem, open the gate, and step into the light.
 
 Play it here: **https://core-creates.github.io/text-rpg/**
 
-Built with React 18 on Create React App. Ambient audio, scene transitions and a
-confetti win screen are all handled client side, so there is no backend to run.
+Built with React 18 on Vite, tested with Vitest. Ambient audio, scene transitions
+and a confetti win screen are all handled client side, so there is no backend to
+run.
 
 ## Playing
 
@@ -35,32 +36,36 @@ Requires Node 20 or newer.
 git clone https://github.com/Core-Creates/text-rpg.git
 cd text-rpg
 npm ci
-npm start
+npm run dev
 ```
 
-The dev server opens on http://localhost:3000.
+The dev server opens on http://localhost:5173.
 
 | Command | What it does |
 | --- | --- |
-| `npm start` | Dev server with hot reload |
-| `npm test` | Jest in interactive watch mode |
-| `npm test -- --watchAll=false` | Single test run, the way CI runs it |
+| `npm run dev` | Dev server with hot module replacement |
+| `npm test` | Vitest in interactive watch mode |
+| `npm run test:run` | Single test run, the way CI runs it |
 | `npm run build` | Production bundle into `build/` |
+| `npm run preview` | Serve the built bundle locally to check it |
 
 ## Project layout
 
 ```
+index.html              Page shell and Content Security Policy, Vite entry
+vite.config.js          Build config and Vitest config, sets the Pages base path
+public/                 Copied verbatim into the build: icons, manifest, robots
 src/
-  index.js              Entry point, mounts App
-  App.js                Shell, renders Game
+  index.jsx             Mounts App into #root
+  App.jsx               Shell, renders Game
   gameData.js           The scene graph: all text, choices, items and damage
   gameData.test.js      Structural tests over the scene graph
   styles.css            Global styling and the pixel sword cursor
-  setupTests.js         Jest setup, stubs jsdom media playback
+  setupTests.js         Vitest setup, stubs jsdom media playback
   components/
-    Game.js             State machine: health, inventory, visited scenes, win state
-    Game.test.js        Playthrough tests driven through the UI
-    Sound.js            Audio layer, matches sounds to scene and log keywords
+    Game.jsx            State machine: health, inventory, visited scenes, win state
+    Game.test.jsx       Playthrough tests driven through the UI
+    Sound.jsx           Audio layer, matches sounds to scene and log keywords
 ```
 
 ## Adding a scene
@@ -114,13 +119,17 @@ starts the river loop whether or not it is the river scene.
 ## Deployment
 
 Pushes to `main` trigger `.github/workflows/cicd.yml`, which installs
-dependencies, runs the test suite, builds the production bundle and publishes it
-to GitHub Pages. Pull requests against `main` run install, test and build without
-deploying.
+dependencies, audits them, runs the test suite, builds the production bundle and
+publishes it to GitHub Pages. Pull requests against `main` run install, audit,
+test and build without deploying. CodeQL runs alongside on both events.
 
-The `homepage` field in `package.json` sets the asset base path for the
-`/text-rpg` subdirectory. If the repository is ever renamed, that field has to
-change with it or the deployed bundle will request its assets from the wrong path.
+The `base` option in `vite.config.js` sets the asset base path for the
+`/text-rpg` subdirectory, and `homepage` in `package.json` records the same URL.
+If the repository is ever renamed, both have to change or the deployed bundle
+will request its assets from the wrong path.
+
+See [SECURITY.md](SECURITY.md) for the threat model and the hardening applied to
+the pipeline.
 
 ## Credits
 
