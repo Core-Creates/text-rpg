@@ -6,6 +6,7 @@ import gameData from '../gameData';
 import Sound from './Sound';
 import WorldMap from './WorldMap';
 import { Divider } from './Ornaments';
+import { Motif } from './Motifs';
 
 // How many recent entries the log shows before folding the middle away.
 const LOG_LIMIT = 4;
@@ -16,7 +17,9 @@ function Game() {
   const [currentScene, setCurrentScene] = useState('intro');                // Current game scene
   const [health, setHealth] = useState(100);                                // Player health
   const [inventory, setInventory] = useState([]);                           // Items collected
-  const [log, setLog] = useState([gameData.intro.text]);                   // Adventure log
+  const [log, setLog] = useState([                                          // Adventure log
+    { text: gameData.intro.text, scene: 'intro' }
+  ]);
   const [visited, setVisited] = useState({});                              // Scenes already left behind
   const [sceneRandoms, setSceneRandoms] = useState({});                    // Scene-based RNG
   const [globalSeed] = useState(() => Math.floor(Math.random() * 1000000));// Global RNG seed
@@ -46,7 +49,10 @@ function Game() {
   // ********************************** Scene Transition Logic **********************************
   const handleChoice = (choice) => {
     if (choice.requires && !inventory.includes(choice.requires)) {
-      setLog(prev => [...prev, `You need ${choice.requires} to do that.`]);
+      setLog(prev => [
+        ...prev,
+        { text: `You need ${choice.requires} to do that.`, scene: currentScene }
+      ]);
       return;
     }
 
@@ -72,7 +78,7 @@ function Game() {
       ? gameData[nextScene].text(visited[nextScene], rand)
       : gameData[nextScene].text;
 
-    setLog(prev => [...prev, newText]);
+    setLog(prev => [...prev, { text: newText, scene: nextScene }]);
 
     if (nextScene === 'treasure' || nextScene === 'passGate') {
       setGameWon(true);
@@ -84,9 +90,9 @@ function Game() {
     if (inventory.includes("Potion")) {
       setHealth(Math.min(100, health + 20));
       setInventory(inventory.filter(item => item !== "Potion"));
-      setLog([...log, "You used a potion and restored health!"]);
+      setLog([...log, { text: "You used a potion and restored health!", scene: 'potion' }]);
     } else {
-      setLog([...log, "No potions left!"]);
+      setLog([...log, { text: "No potions left!", scene: 'potion' }]);
     }
   };
 
@@ -188,8 +194,11 @@ function Game() {
                 &middot; &middot; &middot;
               </li>
             ) : (
-              <li key={index} className={index === 0 ? 'versal' : undefined}>
-                {entry}
+              <li key={index} className={index === 0 ? 'versal' : 'cut'}>
+                {/* The opening line is illuminated by its versal and takes no
+                    block; every line after it gets one. */}
+                {index !== 0 && <Motif scene={entry.scene} />}
+                {entry.text}
               </li>
             )
           )}

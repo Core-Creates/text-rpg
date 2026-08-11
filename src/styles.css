@@ -658,6 +658,26 @@ body {
   color: var(--ink-soft);
 }
 
+/* ********************************** Marginal Blocks **********************************
+   A cut in the margin beside each line, keyed to the place the line was written
+   in. The opening line takes none: it has its versal, and two illuminations on
+   one line would fight.
+*/
+.log-entries li.cut {
+  position: relative;
+  padding-left: 2.1rem;
+}
+
+.motif {
+  position: absolute;
+  left: 0;
+  top: 0.24em;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--oxblood);
+  opacity: 0.78;
+}
+
 .log-entries li:last-child {
   color: var(--ink);
 }

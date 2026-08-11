@@ -430,3 +430,38 @@ describe('the folded log', () => {
     expect(entries()).toHaveLength(5);
   });
 });
+
+// ********************************** Marginal Blocks **********************************
+// The opening line is illuminated by its versal; every line after it is marked
+// with a cut keyed to the place it was written in.
+describe('the marginal blocks', () => {
+  it('leaves the opening line unmarked, since it has the versal', () => {
+    const { container } = render(<Game />);
+
+    expect(container.querySelector('.log-entries li.versal')).toBeInTheDocument();
+    expect(container.querySelector('.log-entries li.versal .motif')).not.toBeInTheDocument();
+  });
+
+  it('marks each line after the opening one', async () => {
+    const user = setupUser();
+    const { container } = render(<Game />);
+
+    await choose(user, 'Go east');
+    await choose(user, 'Search the water');
+
+    const cuts = container.querySelectorAll('.log-entries li.cut');
+    expect(cuts).toHaveLength(2);
+    cuts.forEach((li) => expect(li.querySelector('.motif')).toBeInTheDocument());
+  });
+
+  it('marks a potion line with the flask rather than with a place', async () => {
+    const user = setupUser();
+    const { container } = render(<Game />);
+
+    await choose(user, 'Use Potion');
+
+    const last = [...container.querySelectorAll('.log-entries li.cut')].pop();
+    expect(last).toHaveTextContent('No potions left!');
+    expect(last.querySelector('.motif')).toBeInTheDocument();
+  });
+});
