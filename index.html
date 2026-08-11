@@ -3,38 +3,29 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <!-- ****************************** Content Security Policy ******************************
-         GitHub Pages cannot set response headers, so the policy is delivered as a meta tag.
-         frame-ancestors and report-uri are ignored in meta form and are documented in
-         SECURITY.md instead. style-src still needs unsafe-inline because the game renders
-         inline style attributes; removing those in favour of classes will let it be dropped.
-    -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="
-        default-src 'self';
-        script-src 'self';
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        font-src 'self' https://fonts.gstatic.com;
-        img-src 'self' data: https://alcoser-cursor-bucket.s3.us-east-2.amazonaws.com;
-        media-src 'self' https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com;
-        connect-src 'self';
-        object-src 'none';
-        base-uri 'self';
-        form-action 'none';
-        upgrade-insecure-requests
-      "
-    />
     <meta name="referrer" content="no-referrer" />
+
+    <!-- The Content Security Policy is injected at build time by the csp plugin
+         in vite.config.js. It is not written here because the dev server needs
+         to inject its own stylesheets and HMR client, which a production-grade
+         policy blocks. See SECURITY.md. -->
 
     <link rel="icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#21140F" />
+    <meta name="theme-color" content="#571E10" />
     <meta
       name="description"
       content="A short browser text adventure. Wake in a dark forest, find the Emblem, open the gate."
+    />
+
+    <!-- UnifrakturMaguntia sets the blackletter display type and the gilt versal,
+         Cinzel the inscriptional Roman capitals, EB Garamond the manuscript body. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
     />
 
     <title>Text RPG</title>

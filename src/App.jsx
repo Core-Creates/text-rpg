@@ -1,12 +1,16 @@
 import React from 'react';
 import Game from './components/Game';
 
+// ********************************** App Shell **********************************
+// The outer leaf of the codex. Everything the player sees sits inside it.
 function App() {
   return (
-    <div className="App">
-      <h1>🧙‍♀️ Text RPG</h1>
+    <main className="codex">
+      <p className="rubric">Incipit</p>
+      <h1 className="codex-title">Text RPG</h1>
+      <p className="flourish" aria-hidden="true">&#10087;</p>
       <Game />
-    </div>
+    </main>
   );
 }
 

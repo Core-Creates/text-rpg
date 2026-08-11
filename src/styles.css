@@ -1,174 +1,494 @@
-/* styles.css */
+/* ********************************** Illuminated Manuscript **********************************
+   The page is treated as a leaf of a codex: parchment ground, ruled margins, an
+   inked and rubricated hierarchy, and a gilt drop cap opening the adventure log.
 
-@import url('https://fonts.googleapis.com/css2?family=Caudex&family=Cinzel&display=swap');
+   Fonts are linked from index.html rather than imported here, so the request
+   starts during HTML parsing instead of waiting for the stylesheet to load.
+*/
+
+:root {
+  /* Parchment and blooded crimson come from the Future Medieval mood board.
+     The deep brown ink, gold and moss are carried over from lore-craft. */
+  --parchment: #ECEADA;
+  --parchment-lit: #F6F3E7;
+  --parchment-aged: #DED6BE;
+
+  --ink: #21140F;
+  --ink-soft: #4E3D30;
+  --ink-faint: #8C7A66;
+
+  --oxblood: #571E10;
+  --vermilion: #A6321C;
+  --gold: #B8860B;
+  --gold-lit: #F8B700;
+  --moss: #7A8646;
+
+  --rule: 1px solid rgba(87, 30, 16, 0.28);
+  --leaf-shadow: 0 1px 2px rgba(33, 20, 15, 0.10), 0 18px 44px rgba(33, 20, 15, 0.22);
+
+  --display: 'UnifrakturMaguntia', 'Cinzel', serif;
+  --roman: 'Cinzel', Georgia, serif;
+  --body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 html {
-    cursor: url("https://alcoser-cursor-bucket.s3.us-east-2.amazonaws.com/pixil-frame-0.cur"), default;
-    /* just change the cursor.ico path to your location */
+  cursor: url("https://alcoser-cursor-bucket.s3.us-east-2.amazonaws.com/pixil-frame-0.cur"), default;
 }
+
 body {
+  margin: 0;
+  padding: clamp(1rem, 4vw, 3.5rem) 1rem;
+  min-height: 100vh;
+  font-family: var(--body);
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: var(--ink);
+
+  /* Aged vellum, built from layered gradients so no external image is needed
+     and the image-src policy stays narrow. */
+  background-color: #C9BFA4;
+  background-image:
+    radial-gradient(ellipse at 18% 12%, rgba(255, 252, 240, 0.55), transparent 55%),
+    radial-gradient(ellipse at 82% 78%, rgba(120, 96, 66, 0.30), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, rgba(201, 191, 164, 0), rgba(90, 72, 50, 0.35));
+}
+
+/* ********************************** The Leaf **********************************
+   A single centred column, framed by a double rule the way a ruled manuscript
+   page carries an outer bounding line and an inner writing frame.
+*/
+.codex {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 5vw, 3.25rem);
+  position: relative;
+
+  background-color: var(--parchment);
+  background-image:
+    radial-gradient(ellipse at 10% 0%, var(--parchment-lit), transparent 60%),
+    radial-gradient(ellipse at 90% 100%, rgba(160, 140, 110, 0.22), transparent 55%);
+
+  border: 1px solid var(--oxblood);
+  outline: 1px solid rgba(184, 134, 11, 0.55);
+  outline-offset: 5px;
+  box-shadow: var(--leaf-shadow);
+}
+
+/* ********************************** Rubric and Title **********************************
+   "Rubric" is the right word here: in a manuscript the red letters are the
+   headings and instructions, written before the body text was inked.
+*/
+.rubric {
+  font-family: var(--roman);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--vermilion);
+  margin: 0 0 0.5rem;
+}
+
+.codex-title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(2.75rem, 9vw, 4.5rem);
+  line-height: 1;
+  text-align: center;
+  color: var(--oxblood);
+  margin: 0 0 0.25rem;
+  text-shadow: 0 1px 0 rgba(246, 243, 231, 0.9);
+}
+
+/* ********************************** Flourish **********************************
+   A centred aldus leaf with a rule running out to either side, used to close
+   one movement of the page and open the next.
+*/
+.flourish {
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-family: 'Caudex', serif;
-  background-color: #36454f;
-  color: #5cfb91f6;
-  padding: 2rem;
-  line-height: 1.6;
+  gap: 0.9rem;
+  margin: 1.5rem 0;
+  color: var(--gold);
+  font-size: 0.95rem;
 }
 
-h1, h2, h3, .title {
-  font-family: 'Cinzel', serif;
-  font-size: 5rem;
-  color: #61DAFB;
-  text-shadow: 1px 1px 2px rgba(17, 26, 79, 0.606);
-  padding-bottom: 1rem;
-
+.flourish::before,
+.flourish::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(184, 134, 11, 0.75) 22%,
+    rgba(184, 134, 11, 0.75) 78%,
+    transparent
+  );
 }
 
-button {
-  font-family: 'Cinzel', serif;
-  background-color: #765d4a;
-  color: #fff;
-  border: none;
-  padding: 0.5em 1em;
-  margin-top: 0.5em;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+/* ********************************** Vitals **********************************
+   Health, inventory and seed, set as marginal annotations rather than a game HUD.
+*/
+.vitals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem 2rem;
+  align-items: flex-start;
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border-top: var(--rule);
+  border-bottom: var(--rule);
 }
 
-button:hover {
-  background-color: #5e4736;
+.vital {
+  flex: 1 1 8rem;
+  min-width: 0;
 }
 
-ul {
-  padding-left: 1.2rem;
-}
-
-label {
-  font-weight: bold;
-  font-family: 'Cinzel', serif;
+.vital-label {
   display: block;
-  margin-top: 1rem;
-}
-.card {
-  /* Add shadows to create the "card" effect */
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-}
-
-/* On mouse-over, add a deeper shadow */
-.card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  font-family: var(--roman);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.2rem;
 }
 
-/* Add some padding inside the card container */
-.container {
-  padding: 2px 16px;
+.vital-value {
+  display: block;
+  font-family: var(--body);
+  font-size: 1.2rem;
+  font-variant-numeric: oldstyle-nums;
+  color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
-.adventure-log {
-  border-left: 4px solid #b49b7e;
-  padding-left: 1rem;
-  margin-top: 1rem;
-  background-color: #fff9f2;
+.vital-value.is-empty {
+  color: var(--ink-faint);
   font-style: italic;
 }
 
-.audio-settings-wrapper {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  text-align: right;
-  z-index: 1000;
+/* Health reads as a bar of ink drawn across the ruling. display is set
+   explicitly because the element is a span, and an inline box collapses the
+   height and renders only the left and right borders. */
+.meter {
+  display: block;
+  width: 100%;
+  max-width: 11rem;
+  margin-top: 0.45rem;
+  height: 6px;
+  background-color: rgba(87, 30, 16, 0.15);
+  border: 1px solid rgba(87, 30, 16, 0.30);
 }
 
-.audio-dropdown {
-  margin-top: 0.5rem;
-  background-color: #222;
-  border: 1px solid #5cfb91f6;
-  padding: 1rem;
-  border-radius: 6px;
-  box-shadow: 0 0 8px rgba(92, 251, 145, 0.4);
+.meter-fill {
+  display: block;
+  height: 100%;
+  background-color: var(--moss);
+  transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+.meter-fill.is-wounded {
+  background-color: var(--gold);
+}
+
+.meter-fill.is-grave {
+  background-color: var(--vermilion);
+}
+
+/* ********************************** Choices **********************************
+   Buttons are set as inscriptional Roman capitals on parchment, and invert to
+   oxblood on hover the way a rubricated line stands out from the body text.
+*/
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 0 0 1.5rem;
+}
+
+.choice,
+.action {
+  font-family: var(--roman);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background-color: transparent;
+  border: 1px solid rgba(87, 30, 16, 0.45);
+  padding: 0.7rem 1.15rem;
+  cursor: inherit;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+/* A gilt lozenge, drawn rather than typed. Generated text content is folded
+   into the accessible name, so a glyph here would have every choice announced
+   as "floral heart, Go north". An empty box with a background has no such
+   effect. jsdom does not apply CSS, so the test suite cannot catch this. */
+.choice::before {
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-right: 0.65rem;
+  vertical-align: middle;
+  background-color: var(--gold);
+  transform: rotate(45deg);
+  transition: background-color 0.18s ease;
+}
+
+.choice:hover,
+.choice:focus-visible {
+  background-color: var(--oxblood);
+  border-color: var(--oxblood);
+  color: var(--parchment-lit);
+}
+
+.choice:hover::before,
+.choice:focus-visible::before {
+  background-color: var(--gold-lit);
+}
+
+.action {
+  font-size: 0.7rem;
+  padding: 0.5rem 0.9rem;
+  color: var(--ink-soft);
+  border-color: rgba(87, 30, 16, 0.28);
+  background-color: rgba(222, 214, 190, 0.45);
+}
+
+.action:hover,
+.action:focus-visible {
+  color: var(--oxblood);
+  border-color: var(--oxblood);
+}
+
+:focus-visible {
+  outline: 2px solid var(--vermilion);
+  outline-offset: 2px;
+}
+
+/* ********************************** Adventure Log **********************************
+   The log is the manuscript body: justified, hyphenated, opened by a gilt
+   versal on the first line the way a chapter opens in an illuminated codex.
+*/
+.log-heading {
+  font-family: var(--roman);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  margin: 0 0 0.9rem;
+}
+
+.log-entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.log-entries li {
+  margin: 0 0 0.85rem;
+  text-align: justify;
+  hyphens: auto;
+  color: var(--ink-soft);
+}
+
+.log-entries li:last-child {
+  color: var(--ink);
+}
+
+/* The versal is a float, and the opening entry is often a single line, so
+   without this the second entry wraps around the capital and reads as though
+   it were indented under the first. */
+.log-entries li + li {
+  clear: left;
+}
+
+/* The versal. A single gilt capital, three lines deep, set on oxblood. */
+.log-entries li:first-child::first-letter {
+  float: left;
+  font-family: var(--display);
+  font-size: 3.9rem;
+  line-height: 0.82;
+  margin: 0.16rem 0.55rem 0 0;
+  padding: 0.3rem 0.5rem 0.35rem;
+  color: var(--gold-lit);
+  background-color: var(--oxblood);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+}
+
+/* ********************************** Marginalia **********************************
+   Audio controls live in the margin, as a scribe's note rather than a toolbar.
+*/
+.marginalia {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  animation: fadeIn 0.3s ease-in-out;
+  align-items: flex-end;
+  margin-bottom: 0.75rem;
 }
 
-.audio-dropdown label {
-  color: #fff;
-  font-family: 'Caudex', serif;
+.margin-note {
+  margin-top: 0.6rem;
+  padding: 0.9rem 1rem;
+  min-width: 15rem;
+  background-color: var(--parchment-aged);
+  border: 1px solid rgba(87, 30, 16, 0.35);
+  text-align: left;
 }
 
-.audio-settings-toggle {
-  background-color: #5cfb91f6;
-  color: #222;
-  font-weight: bold;
-  border-radius: 6px;
-  border: none;
-  padding: 0.4rem 1rem;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
+.margin-note label {
+  display: block;
+  font-family: var(--roman);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.75rem;
 }
 
-.audio-settings-toggle:hover {
-  background-color: #4bd87c;
+.margin-note label:last-child {
+  margin-bottom: 0;
 }
 
-
-/* Optional class for fantasy borders */
-.fantasy-box {
-  border: 2px solid #d7c5b3;
-  padding: 1rem;
-  border-radius: 6px;
-  background: #36454f;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+.margin-note input[type="range"] {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  accent-color: var(--oxblood);
 }
 
-.fade-out {
-  opacity: 0;
-  transition: opacity 0.5s ease-out;
+.margin-note input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--oxblood);
 }
 
-.fade-in {
-  opacity: 0;
-  animation: fadeIn ease 2s;
-  animation-fill-mode: forwards;
+/* ********************************** Explicit **********************************
+   The closing panel. "Explicit" is what a scribe wrote at the end of a work,
+   the counterpart to "incipit" at the start.
+*/
+.explicit {
+  margin-top: 1.75rem;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  color: var(--parchment-lit);
+  background-color: var(--oxblood);
+  border: 1px solid var(--gold);
+  outline: 1px solid rgba(184, 134, 11, 0.4);
+  outline-offset: 4px;
 }
 
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+.explicit-title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(2rem, 7vw, 2.9rem);
+  line-height: 1.05;
+  color: var(--gold-lit);
+  margin: 0 0 0.4rem;
 }
 
-/* Start of mobile styles ******************************************************************************************************/
-/* Mobile styles */
+.explicit p {
+  margin: 0;
+  font-style: italic;
+  color: rgba(246, 243, 231, 0.9);
+}
 
-@media (max-width: 600px) {
+.colophon {
+  margin-top: 1rem;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--parchment-aged);
+  border: 1px solid rgba(87, 30, 16, 0.35);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  animation: rise 0.6s ease both;
+}
+
+.colophon-title {
+  font-family: var(--roman);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  margin: 0 0 0.75rem;
+}
+
+.colophon p {
+  margin: 0 0 0.35rem;
+}
+
+.colophon .attribution {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ********************************** Narrow Leaves **********************************/
+@media (max-width: 40rem) {
   body {
-    padding: 1rem;
+    font-size: 1.0625rem;
   }
 
-  h1, h2, h3, .title {
-    font-size: 2rem;
-    align-items: center;
+  .codex {
+    outline-offset: 3px;
   }
 
-  button {
+  .vitals {
+    gap: 1rem;
+  }
+
+  .vital {
+    flex-basis: 100%;
+  }
+
+  .choices {
+    flex-direction: column;
+  }
+
+  .choice {
     width: 100%;
-    padding: 0.8em;
-    font-size: 1.2rem;
+    text-align: left;
   }
 
-  label {
-    font-size: 1.2rem;
+  .log-entries li {
+    text-align: left;
+    hyphens: none;
   }
 
-  .adventure-log {
-    font-size: 0.9rem;
-    padding-left: 0.5rem;
+  .log-entries li:first-child::first-letter {
+    font-size: 3.2rem;
   }
 }
