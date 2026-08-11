@@ -1,0 +1,24 @@
+version: 2
+
+updates:
+  # Application and toolchain dependencies.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # Patch and minor bumps arrive as a single PR so routine updates do not
+      # bury the ones that need a real look. Majors stay separate.
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Workflow actions. These are pinned to commit SHAs, which Dependabot
+  # understands and will bump in place, keeping the version comment in sync.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
