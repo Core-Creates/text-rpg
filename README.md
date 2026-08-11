@@ -49,19 +49,22 @@ The dev server opens on http://localhost:5173.
 | `npm run test:run` | Single test run, the way CI runs it |
 | `npm run build` | Production bundle into `build/` |
 | `npm run preview` | Serve the built bundle locally to check it |
+| `npm run lint` | ESLint, the way CI runs it |
 
 ## Project layout
 
 ```
 index.html              Page shell and Content Security Policy, Vite entry
-vite.config.js          Build config and Vitest config, sets the Pages base path
+vite.config.js          Build config, Vitest config, and the build-time CSP
+eslint.config.js        ESLint flat config
 public/                 Copied verbatim into the build: icons, manifest, robots
 src/
   index.jsx             Mounts App into #root
   App.jsx               Shell, renders Game
   gameData.js           The scene graph: all text, choices, items and damage
   gameData.test.js      Structural tests over the scene graph
-  styles.css            Global styling and the pixel sword cursor
+  styles.css            Font faces, global styling and the pixel sword cursor
+  assets/fonts/         Self-hosted woff2 files, referenced from styles.css
   setupTests.js         Vitest setup, stubs jsdom media playback
   components/
     Game.jsx            State machine: health, inventory, visited scenes, win state
@@ -165,6 +168,14 @@ the same author.
 Three faces do the typographic work: **UnifrakturMaguntia** for the blackletter
 title and the versal, **Cinzel** for inscriptional Roman capitals on labels and
 buttons, and **EB Garamond** for justified manuscript body text.
+
+All three are **self-hosted** from `src/assets/fonts`, declared at the top of
+`styles.css` and fingerprinted by Vite. Nothing is fetched from Google, which
+keeps `style-src` and `font-src` at `'self'` and avoids handing visitor IPs to a
+third party. Cinzel and EB Garamond are variable fonts, so one file serves both
+the 400 and 600 declarations; the filenames carry no weight for that reason.
+Faces are split by `unicode-range`, so an English page fetches only the latin
+subsets.
 
 All styling lives in `src/styles.css`. Two inline styles remain and are
 deliberate: the health meter's width, and whatever `react-confetti` sets on its

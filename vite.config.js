@@ -14,9 +14,9 @@ import react from '@vitejs/plugin-react';
 const CSP = [
   "default-src 'self'",
   "script-src 'self'",
-  "style-src 'self' https://fonts.googleapis.com",
+  "style-src 'self'",
   "style-src-attr 'unsafe-inline'",
-  "font-src 'self' https://fonts.gstatic.com",
+  "font-src 'self'",
   "img-src 'self' data: https://alcoser-cursor-bucket.s3.us-east-2.amazonaws.com",
   "media-src 'self' https://alcoser-sound-bucket.s3.us-east-2.amazonaws.com",
   "connect-src 'self'",
