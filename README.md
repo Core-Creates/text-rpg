@@ -30,7 +30,8 @@ starts after your first click.
 
 ## Running locally
 
-Requires Node 20 or newer.
+Requires Node 22.22.2 or newer, which `engines` in `package.json` enforces.
+The floor is set by jsdom 30, the strictest of the build dependencies.
 
 ```bash
 git clone https://github.com/Core-Creates/text-rpg.git

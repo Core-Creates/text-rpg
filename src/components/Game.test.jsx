@@ -146,21 +146,96 @@ describe('winning', () => {
   }, 10000);
 });
 
-// ********************************** Known Behaviour **********************************
-describe('cave arrival', () => {
-  // handleChoice marks the destination visited before the destination renders,
-  // so the cave shows its already-visited choices on the very first arrival and
-  // the bear encounter cannot be reached through the UI. This test pins the
-  // current behaviour; change it deliberately if the visited flag is fixed.
-  it('shows the visited choice set on first arrival', async () => {
+// ********************************** Revisiting **********************************
+// visited records scenes already departed, so a scene renders its first-visit
+// form on arrival and its second-visit form only when you come back. These pin
+// the fix: handleChoice used to mark the destination visited before it rendered,
+// which showed every scene's second-visit form immediately and made the bear
+// unreachable.
+describe('revisiting a scene', () => {
+  it('offers the first-visit choices on first arrival at the cave', async () => {
     const user = setupUser();
     render(<Game />);
 
+    await choose(user, 'Go north');
+
+    expect(
+      screen.getByRole('button', { name: 'Investigate the growling' })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retreat quietly' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Go back' })).not.toBeInTheDocument();
+    expect(logContains('You enter a cold cave. You hear growling ahead.')).toBe(true);
+  });
+
+  it('offers the second-visit choices on returning to the cave', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go north');
+    await choose(user, 'Retreat quietly');
     await choose(user, 'Go north');
 
     expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Investigate the growling' })
     ).not.toBeInTheDocument();
+    expect(logContains('The cave is empty now, echoing with silence.')).toBe(true);
+  });
+
+  it('changes the gate text on a second visit', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go east');
+    await choose(user, 'Follow the river');
+    expect(logContains('You come across a large gate with a glowing emblem.')).toBe(true);
+
+    await choose(user, 'Go back');
+    await choose(user, 'Follow the river');
+    expect(logContains('The gate still stands, locked and unmoving.')).toBe(true);
+  });
+});
+
+// ********************************** The Bear **********************************
+// Unreachable through the UI until the visited flag was corrected.
+describe('the bear', () => {
+  it('costs 20 health to investigate the growling', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go north');
+    await choose(user, 'Investigate the growling');
+
+    expect(screen.getByRole('meter', { name: 'Health' })).toHaveAttribute(
+      'aria-valuenow',
+      '80'
+    );
+    expect(logContains('A bear chases you out! You barely escape.')).toBe(true);
+  });
+
+  it('restores health with a potion after the mauling, capped at 100', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    // Collect the potion first, then go and get hurt.
+    await choose(user, 'Go east');
+    await choose(user, 'Search the water');
+    await choose(user, 'Go back to the river');
+    await choose(user, 'Return to the forest');
+    await choose(user, 'Go north');
+    await choose(user, 'Investigate the growling');
+
+    expect(screen.getByRole('meter', { name: 'Health' })).toHaveAttribute(
+      'aria-valuenow',
+      '80'
+    );
+
+    await choose(user, 'Use Potion');
+
+    expect(screen.getByRole('meter', { name: 'Health' })).toHaveAttribute(
+      'aria-valuenow',
+      '100'
+    );
+    expect(vital('Inventory')).toHaveTextContent('Empty');
   });
 });

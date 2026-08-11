@@ -431,9 +431,13 @@ body {
    versal on the first line the way a chapter opens in an illuminated codex.
 */
 
+/* flow-root establishes a block formatting context, so the versal float is
+   contained by the list. Without it the float escapes and the choice buttons
+   that follow the log wrap around the capital. */
 .log-entries {
+  display: flow-root;
   list-style: none;
-  margin: 0;
+  margin: 0 0 1.5rem;
   padding: 0;
 }
 

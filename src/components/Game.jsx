@@ -14,7 +14,7 @@ function Game() {
   const [health, setHealth] = useState(100);                                // Player health
   const [inventory, setInventory] = useState([]);                           // Items collected
   const [log, setLog] = useState([gameData.intro.text]);                   // Adventure log
-  const [visited, setVisited] = useState({ intro: true });                 // Visited scenes
+  const [visited, setVisited] = useState({});                              // Scenes already left behind
   const [sceneRandoms, setSceneRandoms] = useState({});                    // Scene-based RNG
   const [globalSeed] = useState(() => Math.floor(Math.random() * 1000000));// Global RNG seed
   const [gameWon, setGameWon] = useState(false);                           // Flag for win condition
@@ -53,7 +53,13 @@ function Game() {
     setHealth(prev => Math.max(prev - damage, 0));
     if (item) setInventory(prev => [...prev, item]);
 
-    setVisited(prev => ({ ...prev, [nextScene]: true }));
+    // Mark the scene being LEFT, not the one being entered. Marking the
+    // destination set visited[currentScene] to true before that scene had
+    // rendered, so every scene whose text or choices are a function of visited
+    // showed its second-visit form on the very first arrival. That made the
+    // bear encounter unreachable: the cave printed "you hear growling" into the
+    // log while already offering only "Go back".
+    setVisited(prev => ({ ...prev, [currentScene]: true }));
     setSceneRandoms(prev => ({ ...prev, [nextScene]: seededRandom(nextScene) }));
     setCurrentScene(nextScene);
 
@@ -177,6 +183,19 @@ function Game() {
         </div>
       </div>
 
+      {/* ********************************** Adventure Log **********************************
+          The log sits above the choices so the newest line of narrative is the
+          text immediately preceding the buttons that answer it.
+      */}
+      <section aria-labelledby="log-heading">
+        <h2 className="cartouche" id="log-heading">Adventure Log</h2>
+        <ul className="log-entries" aria-label="Adventure log">
+          {log.map((entry, i) => (
+            <li key={i}>{entry}</li>
+          ))}
+        </ul>
+      </section>
+
       {/* ********************************** Choices ********************************** */}
       <nav className="choices" aria-label="Choices">
         {!gameWon && sceneChoices.map((choice, i) => (
@@ -198,18 +217,6 @@ function Game() {
 
       {/* ********************************** World Map ********************************** */}
       <WorldMap visited={visited} current={currentScene} />
-
-      <Divider />
-
-      {/* ********************************** Adventure Log ********************************** */}
-      <section aria-labelledby="log-heading">
-        <h2 className="cartouche" id="log-heading">Adventure Log</h2>
-        <ul className="log-entries" aria-label="Adventure log">
-          {log.map((entry, i) => (
-            <li key={i}>{entry}</li>
-          ))}
-        </ul>
-      </section>
 
       {/* ********************************** Explicit ********************************** */}
       {gameWon && (
