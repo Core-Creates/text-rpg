@@ -3,18 +3,22 @@
 // inventory gating and the win condition stay wired together.
 
 import React from 'react';
-import { act, render, screen, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Game from './Game';
 
 // Confetti paints to a canvas, which jsdom does not implement. The win state is
 // what matters here, not the particles.
-jest.mock('react-confetti', () => ({
+vi.mock('react-confetti', () => ({
   __esModule: true,
   default: () => null
 }));
 
 // ********************************** Helpers **********************************
+// delay: null skips user-event's inter-event waits. Nothing here depends on
+// realistic input timing, and it keeps the suite fast.
+const setupUser = () => userEvent.setup({ delay: null });
+
 const choose = (user, label) =>
   user.click(screen.getByRole('button', { name: label }));
 
@@ -47,7 +51,7 @@ describe('initial state', () => {
 // ********************************** Inventory **********************************
 describe('inventory', () => {
   it('adds the potion to the inventory when the water is searched', async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     render(<Game />);
 
     await choose(user, 'Go east');
@@ -58,7 +62,7 @@ describe('inventory', () => {
   });
 
   it('consumes the potion when it is used', async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     render(<Game />);
 
     await choose(user, 'Go east');
@@ -70,7 +74,7 @@ describe('inventory', () => {
   });
 
   it('reports an empty pouch when there is no potion to use', async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     render(<Game />);
 
     await choose(user, 'Use Potion');
@@ -82,7 +86,7 @@ describe('inventory', () => {
 // ********************************** Gating **********************************
 describe('the gate', () => {
   it('refuses to open without the Emblem and keeps the player in place', async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     render(<Game />);
 
     await choose(user, 'Go east');
@@ -97,7 +101,7 @@ describe('the gate', () => {
 // ********************************** Win Condition **********************************
 describe('winning', () => {
   it('completes the shrine route and shows the win banner', async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     render(<Game />);
 
     await choose(user, 'Go east');
@@ -118,31 +122,26 @@ describe('winning', () => {
     ).not.toBeInTheDocument();
   });
 
+  // Real timers rather than vi.useFakeTimers. Vitest's fake timers replace
+  // queueMicrotask and nextTick, which user-event depends on, and the clicks
+  // deadlock. Waiting out the real two second delay is slower but honest.
   it('reveals the credits two seconds after the win', async () => {
-    jest.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    const user = setupUser();
+    render(<Game />);
 
-    try {
-      render(<Game />);
+    await choose(user, 'Go east');
+    await choose(user, 'Follow the river');
+    await choose(user, 'Search nearby');
+    await choose(user, 'Enter the shrine');
+    await choose(user, 'Return to the gate');
+    await choose(user, 'Try to open the gate');
 
-      await choose(user, 'Go east');
-      await choose(user, 'Follow the river');
-      await choose(user, 'Search nearby');
-      await choose(user, 'Enter the shrine');
-      await choose(user, 'Return to the gate');
-      await choose(user, 'Try to open the gate');
+    expect(screen.queryByText('Credits:')).not.toBeInTheDocument();
 
-      expect(screen.queryByText('Credits:')).not.toBeInTheDocument();
-
-      await act(async () => {
-        jest.advanceTimersByTime(2000);
-      });
-
-      expect(screen.getByText('Credits:')).toBeInTheDocument();
-    } finally {
-      jest.useRealTimers();
-    }
-  });
+    expect(
+      await screen.findByText('Credits:', {}, { timeout: 4000 })
+    ).toBeInTheDocument();
+  }, 10000);
 });
 
 // ********************************** Known Behaviour **********************************
@@ -152,7 +151,7 @@ describe('cave arrival', () => {
   // the bear encounter cannot be reached through the UI. This test pins the
   // current behaviour; change it deliberately if the visited flag is fixed.
   it('shows the visited choice set on first arrival', async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     render(<Game />);
 
     await choose(user, 'Go north');
