@@ -459,12 +459,14 @@ body {
   margin: 0 0 1.5rem;
 }
 
-/* Capped at roughly the chart's natural size and centred, so a small graph is
-   not stretched across the full column width. */
+/* Capped at the chart's natural size and centred, so a small graph is not
+   stretched across the column and a full one is not shrunk below legibility.
+   32rem clears the widest layout mapLayout can produce, which is MAX_PER_ROW
+   nodes across. */
 .chart-plate {
   display: block;
   width: 100%;
-  max-width: 25rem;
+  max-width: 32rem;
   height: auto;
   margin: 0 auto;
   padding: 0.85rem;

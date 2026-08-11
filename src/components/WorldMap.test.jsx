@@ -4,9 +4,13 @@
 
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
+import gameData from '../gameData';
 import WorldMap from './WorldMap';
 
 const plate = () => screen.getByRole('img');
+
+// Derived rather than hardcoded, so adding a scene does not break these.
+const TOTAL = Object.keys(gameData).length;
 
 describe('world map', () => {
   it('names only the places that have been visited', () => {
@@ -21,14 +25,16 @@ describe('world map', () => {
   it('hides unvisited places behind a placeholder rather than omitting them', () => {
     render(<WorldMap visited={{ intro: true }} current="intro" />);
 
-    // Eight scenes remain unvisited and each still occupies its place on the map.
-    expect(within(plate()).getAllByText('. . .')).toHaveLength(8);
+    // Every other scene is unvisited, and each still occupies its place on the map.
+    expect(within(plate()).getAllByText('. . .')).toHaveLength(TOTAL - 1);
   });
 
   it('reports discovery progress to assistive technology', () => {
     render(<WorldMap visited={{ intro: true, cave: true }} current="cave" />);
 
-    expect(plate()).toHaveAccessibleName('Map of the world. 2 of 9 places discovered.');
+    expect(plate()).toHaveAccessibleName(
+      `Map of the world. 2 of ${TOTAL} places discovered.`
+    );
   });
 
   it('marks the current location apart from the merely visited', () => {
@@ -56,12 +62,12 @@ describe('world map', () => {
     render(<WorldMap visited={{}} current="intro" />);
 
     expect(within(plate()).getByText('Dark Forest')).toBeInTheDocument();
-    expect(within(plate()).getAllByText('. . .')).toHaveLength(8);
+    expect(within(plate()).getAllByText('. . .')).toHaveLength(TOTAL - 1);
   });
 
   it('survives a current scene that is not on the map', () => {
     render(<WorldMap visited={{}} current="nowhere" />);
 
-    expect(within(plate()).getAllByText('. . .')).toHaveLength(9);
+    expect(within(plate()).getAllByText('. . .')).toHaveLength(TOTAL);
   });
 });
