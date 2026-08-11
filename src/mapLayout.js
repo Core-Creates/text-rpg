@@ -13,6 +13,11 @@ const COL_GAP = 18;
 const ROW_GAP = 28;
 const PAD = 14;
 
+// A depth with more scenes than this wraps onto further rows. Without a cap the
+// chart grows wider than its plate, and since the SVG scales to fit, every label
+// shrinks until none of them are legible.
+const MAX_PER_ROW = 4;
+
 // Scenes may express choices as a value or a function of (visited, rand).
 // Both branches are collected, so an edge that only appears on a revisit is
 // still drawn.
@@ -47,11 +52,20 @@ export function buildMap() {
     if (depth[name] === undefined) depth[name] = 0;
   });
 
-  const rows = [];
+  // Group by distance, then wrap any group that is too wide onto further rows.
+  const byDepth = [];
   Object.keys(gameData).forEach((name) => {
     const d = depth[name];
-    if (!rows[d]) rows[d] = [];
-    rows[d].push(name);
+    if (!byDepth[d]) byDepth[d] = [];
+    byDepth[d].push(name);
+  });
+
+  const rows = [];
+  byDepth.forEach((group) => {
+    if (!group) return;
+    for (let i = 0; i < group.length; i += MAX_PER_ROW) {
+      rows.push(group.slice(i, i + MAX_PER_ROW));
+    }
   });
 
   // ********************************** Positions **********************************

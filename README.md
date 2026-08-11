@@ -1,8 +1,12 @@
 # Text RPG
 
 A short browser-based text adventure. You wake up in a dark forest with no memory
-of how you got there, two paths in front of you, and a locked gate somewhere
+of how you got there, three paths in front of you, and a locked gate somewhere
 downriver. Find the Emblem, open the gate, and step into the light.
+
+Sixteen places, three items and two locked doors. The shrine that holds the
+Emblem is pitch dark, so the lantern in the woodsman's hut has to be found first;
+everything else, the bear, the ossuary and the watchtower, is optional.
 
 Play it here: **https://core-creates.github.io/text-rpg/**
 
@@ -20,7 +24,9 @@ Three things carry across scenes:
 
 - **Health** starts at 100 and drops when a choice carries damage.
 - **Inventory** holds items picked up along the way. The Potion restores 20 health
-  when used, capped at 100. The Emblem is required to open the gate.
+  when used, capped at 100. The **Lantern** opens the shrine and the deep passage
+  under the cave. The **Iron Key** unlocks the watchtower. The **Emblem** opens
+  the gate and ends the game.
 - **Seed** is a per-session number that drives the deterministic per-scene random
   values available to scene text.
 
@@ -84,13 +90,19 @@ a `text` string and a `choices` array:
 
 ```js
 clearing: {
+  label: "The Clearing",
   text: "A quiet clearing opens up. Moonlight pools on the grass.",
   choices: [
-    { text: "Rest here", next: "clearing" },
+    { text: "Look at the stars", next: "stars" },
     { text: "Head back", next: "intro" }
   ]
 }
 ```
+
+`label` is the name shown on the world map, and is described under
+[The Known World](#the-known-world) below. A scene needs at least one choice
+unless it ends the game, since `gameData.test.js` treats any other dead end as a
+mistake.
 
 Each choice supports these fields:
 

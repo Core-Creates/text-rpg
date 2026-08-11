@@ -27,6 +27,21 @@ const adventureLog = () => screen.getByRole('list', { name: /adventure log/i });
 // Each vital is a label span followed by its value span, inside one .vital block.
 const vital = (label) => screen.getByText(label).parentElement;
 
+// The canonical winning route. The lantern is mandatory: the shrine doorway is
+// dark, so the west road has to be walked before the east one pays out.
+const walkToTheLight = async (user) => {
+  await choose(user, 'Go west');
+  await choose(user, 'Follow the smoke');
+  await choose(user, 'Take the lantern');
+  await choose(user, 'Return to the forest');
+  await choose(user, 'Go east');
+  await choose(user, 'Follow the river');
+  await choose(user, 'Search nearby');
+  await choose(user, 'Enter the shrine');
+  await choose(user, 'Return to the gate');
+  await choose(user, 'Try to open the gate');
+};
+
 const logContains = (text) =>
   within(adventureLog()).queryByText(text) !== null;
 
@@ -106,15 +121,7 @@ describe('winning', () => {
     const user = setupUser();
     render(<Game />);
 
-    await choose(user, 'Go east');
-    await choose(user, 'Follow the river');
-    await choose(user, 'Search nearby');
-    await choose(user, 'Enter the shrine');
-    await choose(user, 'Return to the gate');
-
-    expect(vital('Inventory')).toHaveTextContent('Emblem');
-
-    await choose(user, 'Try to open the gate');
+    await walkToTheLight(user);
 
     // Matched on the banner wording rather than "You win", which also appears
     // in the passGate log entry.
@@ -131,12 +138,7 @@ describe('winning', () => {
     const user = setupUser();
     render(<Game />);
 
-    await choose(user, 'Go east');
-    await choose(user, 'Follow the river');
-    await choose(user, 'Search nearby');
-    await choose(user, 'Enter the shrine');
-    await choose(user, 'Return to the gate');
-    await choose(user, 'Try to open the gate');
+    await walkToTheLight(user);
 
     expect(screen.queryByText('Credits')).not.toBeInTheDocument();
 
@@ -175,11 +177,14 @@ describe('revisiting a scene', () => {
     await choose(user, 'Retreat quietly');
     await choose(user, 'Go north');
 
+    expect(screen.getByRole('button', { name: 'Climb down the crack' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Investigate the growling' })
     ).not.toBeInTheDocument();
-    expect(logContains('The cave is empty now, echoing with silence.')).toBe(true);
+    expect(
+      logContains('The cave is quiet now. A crack in the floor drops into darkness.')
+    ).toBe(true);
   });
 
   it('changes the gate text on a second visit', async () => {
@@ -237,5 +242,113 @@ describe('the bear', () => {
       '100'
     );
     expect(vital('Inventory')).toHaveTextContent('Empty');
+  });
+});
+
+// ********************************** The Western Road **********************************
+// The lantern gates both the shrine and the deep, so the west road is mandatory.
+describe('the lantern', () => {
+  it('is refused entry to the shrine without it', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go east');
+    await choose(user, 'Follow the river');
+    await choose(user, 'Search nearby');
+    await choose(user, 'Enter the shrine');
+
+    expect(logContains('You need Lantern to do that.')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Enter the shrine' })).toBeInTheDocument();
+  });
+
+  it('is taken from the hut and opens the shrine', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go west');
+    await choose(user, 'Follow the smoke');
+    await choose(user, 'Take the lantern');
+
+    expect(vital('Inventory')).toHaveTextContent('Lantern');
+
+    await choose(user, 'Return to the forest');
+    await choose(user, 'Go east');
+    await choose(user, 'Follow the river');
+    await choose(user, 'Search nearby');
+    await choose(user, 'Enter the shrine');
+    // The Emblem is granted by leaving the shrine, not by entering it.
+    await choose(user, 'Return to the gate');
+
+    expect(vital('Inventory')).toHaveTextContent('Emblem');
+  });
+
+  it('leaves the hut empty once the lantern is gone', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go west');
+    await choose(user, 'Follow the smoke');
+    await choose(user, 'Take the lantern');
+    await choose(user, 'Follow the smoke');
+
+    expect(screen.getByRole('button', { name: 'Step back outside' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Take the lantern' })
+    ).not.toBeInTheDocument();
+  });
+});
+
+// ********************************** The Optional Road **********************************
+// Neither the ossuary nor the tower is needed to win. Both should still work.
+describe('the ossuary and the tower', () => {
+  it('refuses the deep without a lantern and yields the key with one', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go north');
+    await choose(user, 'Retreat quietly');
+    await choose(user, 'Go north');
+    await choose(user, 'Climb down the crack');
+    await choose(user, 'Press on into the dark');
+
+    expect(logContains('You need Lantern to do that.')).toBe(true);
+
+    await choose(user, 'Climb back up');
+    await choose(user, 'Go back');
+    await choose(user, 'Go west');
+    await choose(user, 'Follow the smoke');
+    await choose(user, 'Take the lantern');
+    await choose(user, 'Return to the forest');
+    await choose(user, 'Go north');
+    await choose(user, 'Climb down the crack');
+    await choose(user, 'Press on into the dark');
+    await choose(user, 'Take the key and go');
+
+    expect(vital('Inventory')).toHaveTextContent('Iron Key');
+  });
+
+  it('charges health to cross the ford', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go east');
+    await choose(user, 'Cross at the ford');
+
+    expect(screen.getByRole('meter', { name: 'Health' })).toHaveAttribute(
+      'aria-valuenow',
+      '90'
+    );
+  });
+
+  it('keeps the tower locked without the iron key', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go east');
+    await choose(user, 'Cross at the ford');
+    await choose(user, 'Climb the bank');
+    await choose(user, 'Unlock the door');
+
+    expect(logContains('You need Iron Key to do that.')).toBe(true);
   });
 });
