@@ -4,6 +4,9 @@
   "private": false,
   "type": "module",
   "homepage": "https://core-creates.github.io/text-rpg",
+  "engines": {
+    "node": ">=22.22.2"
+  },
   "dependencies": {
     "@react-hook/window-size": "^3.1.1",
     "react": "^18.2.0",
@@ -15,10 +18,10 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.6.3",
-    "@vitejs/plugin-react": "^4.3.4",
-    "jsdom": "^25.0.1",
-    "vite": "^6.0.7",
-    "vitest": "^3.2.7"
+    "@vitejs/plugin-react": "^6.0.5",
+    "jsdom": "^30.0.1",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10"
   },
   "scripts": {
     "dev": "vite",

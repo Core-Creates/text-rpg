@@ -50,8 +50,17 @@ describe('world map', () => {
     expect(lit).toHaveLength(1);
   });
 
-  it('survives an empty visited map without throwing', () => {
+  it('names where you stand even before you have left it', () => {
+    // visited records scenes already departed, so on the opening turn it is
+    // empty while the player is nonetheless standing in the forest.
     render(<WorldMap visited={{}} current="intro" />);
+
+    expect(within(plate()).getByText('Dark Forest')).toBeInTheDocument();
+    expect(within(plate()).getAllByText('. . .')).toHaveLength(8);
+  });
+
+  it('survives a current scene that is not on the map', () => {
+    render(<WorldMap visited={{}} current="nowhere" />);
 
     expect(within(plate()).getAllByText('. . .')).toHaveLength(9);
   });

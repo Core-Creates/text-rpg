@@ -10,7 +10,10 @@ const centre = (node) => ({ x: node.x + node.w / 2, y: node.y + node.h / 2 });
 
 function WorldMap({ visited, current }) {
   const { nodes, edges, width, height } = MAP;
-  const seen = (name) => Boolean(visited[name]);
+
+  // Where you stand counts as known even before you leave it, since visited
+  // only records scenes already departed.
+  const seen = (name) => Boolean(visited[name]) || name === current;
 
   return (
     <section className="chart" aria-labelledby="chart-heading">
