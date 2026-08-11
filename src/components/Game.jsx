@@ -7,6 +7,9 @@ import Sound from './Sound';
 import WorldMap from './WorldMap';
 import { Divider } from './Ornaments';
 
+// How many recent entries the log shows before folding the middle away.
+const LOG_LIMIT = 4;
+
 // ********************************** Game Component **********************************
 function Game() {
   // ********************************** State Initialization **********************************
@@ -22,6 +25,7 @@ function Game() {
   const [volume, setVolume] = useState(1);                                  // Audio volume level
   const [muted, setMuted] = useState(false);                                // Mute toggle
   const [showAudioSettings, setShowAudioSettings] = useState(false);        // Toggle audio panel
+  const [showFullLog, setShowFullLog] = useState(false);                    // Unfold the whole record
 
   const [width, height] = useWindowSize();                                  // Window size for Confetti
 
@@ -100,6 +104,16 @@ function Game() {
   // The health bar shifts from moss through gold to vermilion as it drains.
   const meterState = health > 60 ? '' : health > 25 ? ' is-wounded' : ' is-grave';
 
+  // ********************************** Folding the Log **********************************
+  // Keep the opening line and the most recent few, with an elision mark between.
+  // The opening line stays because it carries the versal, and because an incipit
+  // that disappeared on the fifth move would be a strange thing for a codex to do.
+  const shownLog = (() => {
+    const all = log.map((entry, index) => ({ entry, index }));
+    if (showFullLog || log.length <= LOG_LIMIT + 1) return all;
+    return [all[0], { elided: true }, ...all.slice(-LOG_LIMIT)];
+  })();
+
   // ********************************** UI Render **********************************
   return (
     <>
@@ -150,6 +164,106 @@ function Game() {
         )}
       </div>
 
+      {/* ********************************** Recto **********************************
+          The written side of the spread: the log, and the choices answering it.
+      */}
+      <div className="page page-recto">
+
+      {/* ********************************** Adventure Log **********************************
+          The log sits above the choices so the newest line of narrative is the
+          text immediately preceding the buttons that answer it.
+
+          Long playthroughs would otherwise push the buttons far below the fold,
+          so all but the most recent few entries are folded away. The opening
+          line always stays: it carries the versal, and an incipit that vanished
+          on the fifth move would be a strange thing for a codex to do.
+      */}
+      <section aria-labelledby="log-heading">
+        <h2 className="cartouche" id="log-heading">Adventure Log</h2>
+
+        <ul className="log-entries" aria-label="Adventure log">
+          {shownLog.map(({ entry, index, elided }) =>
+            elided ? (
+              <li className="elision" key="elision" aria-hidden="true">
+                &middot; &middot; &middot;
+              </li>
+            ) : (
+              <li key={index} className={index === 0 ? 'versal' : undefined}>
+                {entry}
+              </li>
+            )
+          )}
+        </ul>
+
+        {log.length > LOG_LIMIT + 1 && (
+          <button
+            type="button"
+            className="action log-toggle"
+            aria-expanded={showFullLog}
+            onClick={() => setShowFullLog(!showFullLog)}
+          >
+            {showFullLog
+              ? 'Fold the record away'
+              : `Read all ${log.length} entries`}
+          </button>
+        )}
+      </section>
+
+      {/* ********************************** Choices ********************************** */}
+      <nav className="choices" aria-label="Choices">
+        {!gameWon && sceneChoices.map((choice, i) => (
+          <button
+            type="button"
+            className="choice"
+            key={i}
+            onClick={() => handleChoice(choice)}
+          >
+            {choice.text}
+          </button>
+        ))}
+        <button type="button" className="action" onClick={usePotion}>
+          Use Potion
+        </button>
+      </nav>
+
+      {/* ********************************** Explicit ********************************** */}
+      {gameWon && (
+        <>
+          <Confetti width={width} height={height} />
+          <div className="explicit">
+            <p className="explicit-title">You win</p>
+            <p>Thanks for playing</p>
+          </div>
+
+          {showCredits && (
+            <div className="colophon">
+              <p className="colophon-title">Credits</p>
+              <p>Created by Corrina Alcoser</p>
+              <p>Powered by React</p>
+              <p>Sound effects hosted on AWS S3, sourced from freesound.org</p>
+              <p className="attribution">
+                River by klankbeeld &middot; Growl by FK_Prod &middot; Fanfare by
+                bone666138 &middot; Cave by HermanDV &middot; Footsteps by
+                ScreenplayTheater
+              </p>
+            </div>
+          )}
+        </>
+      )}
+
+      </div>
+
+      {/* ********************************** Verso **********************************
+          The painted side: the miniature, and the marginal annotations that in a
+          manuscript would be written beside it.
+      */}
+      <div className="page page-verso">
+
+      <Divider />
+
+      {/* ********************************** World Map ********************************** */}
+      <WorldMap visited={visited} current={currentScene} />
+
       {/* ********************************** Vitals ********************************** */}
       <div className="vitals">
         <div className="vital">
@@ -183,65 +297,7 @@ function Game() {
         </div>
       </div>
 
-      {/* ********************************** Adventure Log **********************************
-          The log sits above the choices so the newest line of narrative is the
-          text immediately preceding the buttons that answer it.
-      */}
-      <section aria-labelledby="log-heading">
-        <h2 className="cartouche" id="log-heading">Adventure Log</h2>
-        <ul className="log-entries" aria-label="Adventure log">
-          {log.map((entry, i) => (
-            <li key={i}>{entry}</li>
-          ))}
-        </ul>
-      </section>
-
-      {/* ********************************** Choices ********************************** */}
-      <nav className="choices" aria-label="Choices">
-        {!gameWon && sceneChoices.map((choice, i) => (
-          <button
-            type="button"
-            className="choice"
-            key={i}
-            onClick={() => handleChoice(choice)}
-          >
-            {choice.text}
-          </button>
-        ))}
-        <button type="button" className="action" onClick={usePotion}>
-          Use Potion
-        </button>
-      </nav>
-
-      <Divider />
-
-      {/* ********************************** World Map ********************************** */}
-      <WorldMap visited={visited} current={currentScene} />
-
-      {/* ********************************** Explicit ********************************** */}
-      {gameWon && (
-        <>
-          <Confetti width={width} height={height} />
-          <div className="explicit">
-            <p className="explicit-title">You win</p>
-            <p>Thanks for playing</p>
-          </div>
-
-          {showCredits && (
-            <div className="colophon">
-              <p className="colophon-title">Credits</p>
-              <p>Created by Corrina Alcoser</p>
-              <p>Powered by React</p>
-              <p>Sound effects hosted on AWS S3, sourced from freesound.org</p>
-              <p className="attribution">
-                River by klankbeeld &middot; Growl by FK_Prod &middot; Fanfare by
-                bone666138 &middot; Cave by HermanDV &middot; Footsteps by
-                ScreenplayTheater
-              </p>
-            </div>
-          )}
-        </>
-      )}
+      </div>
     </>
   );
 }

@@ -90,6 +90,54 @@ export function VineBorder({ orientation = 'horizontal' }) {
   );
 }
 
+// ********************************** Wyvern **********************************
+// A grotesque for the lower margin, of the kind that perches on the border of an
+// illuminated page and has nothing to do with the text beside it.
+//
+// Heraldic rather than naturalistic: two legs, not four, a barbed tail, and a
+// wing held open. Drawn as a silhouette because it renders around 60px tall,
+// where interior detail would only turn to mud.
+export function Wyvern() {
+  return (
+    <svg className="wyvern" viewBox="0 0 120 96" aria-hidden="true" focusable="false">
+      {/* Tail, sweeping back from the haunch and ending in a barb. */}
+      <path
+        d="M40 74 C24 76, 10 70, 6 58 C4 52, 8 46, 13 47 C17 48, 17 53, 14 54
+           C19 62, 30 66, 42 64 Z"
+        fill="var(--vine)"
+      />
+      <path d="M8 46 L2 40 L10 41 L11 34 L15 43 Z" fill="var(--vine)" />
+
+      {/* Body, neck and head in one stroke, so the curve of the neck carries. */}
+      <path
+        d="M40 74 C46 62, 56 58, 66 58 C74 58, 78 52, 76 44
+           C74 34, 70 28, 72 20 C74 12, 82 7, 92 8
+           L112 12 L106 18 L112 22 L96 24
+           C90 25, 86 30, 87 37 C88 46, 92 54, 90 63
+           C88 74, 78 80, 66 80 C56 80, 46 78, 40 74 Z"
+        fill="var(--vine)"
+      />
+
+      {/* The eye, punched out of the silhouette. */}
+      <circle cx="95" cy="16" r="1.9" fill="var(--parchment)" />
+
+      {/* Wing, held open. Vermilion against the green, as in the reference. */}
+      <path
+        d="M64 60 C60 46, 66 32, 80 28 C74 36, 72 44, 74 52
+           C78 48, 84 46, 90 47 C84 51, 80 57, 79 63
+           C74 60, 69 59, 64 60 Z"
+        fill="var(--vermilion)"
+      />
+
+      {/* Two legs, gripping whatever it is standing on. */}
+      <g fill="var(--vine)">
+        <path d="M58 78 L56 90 L52 94 L57 93 L58 96 L61 90 L63 79 Z" />
+        <path d="M74 78 L73 90 L69 94 L74 93 L75 96 L78 90 L79 79 Z" />
+      </g>
+    </svg>
+  );
+}
+
 // ********************************** Corner Flourish **********************************
 // One shape, rotated by CSS into each of the four corners of the leaf.
 export function CornerFlourish() {

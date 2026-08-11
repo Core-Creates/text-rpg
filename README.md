@@ -30,6 +30,11 @@ Three things carry across scenes:
 - **Seed** is a per-session number that drives the deterministic per-scene random
   values available to scene text.
 
+The log keeps the opening line and the four most recent entries, folding the
+middle away behind a toggle so the choices never drift far down the page. The
+opening line always stays: it carries the illuminated capital, and an incipit
+that vanished on the fifth move would be a strange thing for a codex to do.
+
 Audio settings live behind the button at the top right, with a volume slider and a
 mute toggle. Browsers block autoplay until you interact with the page, so sound
 starts after your first click.
@@ -169,7 +174,17 @@ page is:
    green vine. The strips carry no `viewBox` on purpose, so user units equal CSS
    pixels and the flowers tile at a fixed size along an edge of any length rather
    than stretching to fit.
-3. **The written area**, inset from both.
+3. **Grotesques** perched on the border, two wyverns facing each other across
+   the foot of the page. They mean nothing, which is the point of them. Hidden
+   on narrow leaves, where there is no margin for them to stand in.
+4. **The written area**, inset from all of it.
+
+Past 78rem the leaf opens into a **two-page spread**: the miniature and the
+marginal annotations on the verso, the narrative and the choices on the recto,
+with a shaded gutter between. The pages are laid out in source order recto then
+verso, so a screen reader and a narrow viewport both get the title, the story and
+the choices before the map; `order` only moves the verso left once there is room
+for two columns.
 
 The world map is treated as the page's miniature: an ultramarine ground powdered
 with gilt bezants, under an ogee arch. `mapLayout.js` reserves `PAD_TOP` of

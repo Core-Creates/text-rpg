@@ -282,6 +282,43 @@ body {
 .corner:nth-child(3) { bottom: 6px; left: 6px; transform: scaleY(-1); }
 .corner:nth-child(4) { bottom: 6px; right: 6px; transform: scale(-1); }
 
+/* ********************************** Grotesques **********************************
+   Two wyverns perched on the foot of the border, facing one another. Inert, and
+   hidden on narrow leaves where there is no margin for them to stand in.
+*/
+.grotesques {
+  position: absolute;
+  left: 2.4rem;
+  right: 2.4rem;
+  bottom: 1.6rem;
+  display: none;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.wyvern {
+  display: block;
+  width: 74px;
+  height: auto;
+  opacity: 0.92;
+}
+
+/* The second faces back across the page at the first. */
+.grotesques .wyvern:nth-child(2) {
+  transform: scaleX(-1);
+}
+
+@media (min-width: 48rem) {
+  .grotesques {
+    display: flex;
+  }
+
+  /* Room at the foot of the leaf for them to stand. */
+  .codex {
+    padding-bottom: 7rem;
+  }
+}
+
 /* ********************************** Header **********************************/
 .codex-header {
   text-align: center;
@@ -632,8 +669,10 @@ body {
   clear: left;
 }
 
-/* The versal. A single gilt capital, three lines deep, set on oxblood. */
-.log-entries li:first-child::first-letter {
+/* The versal. A single gilt capital, three lines deep, set on oxblood.
+   Keyed to a class rather than :first-child, because when the log is folded the
+   first rendered item may be an elision mark or a much later entry. */
+.log-entries li.versal::first-letter {
   float: left;
   font-family: var(--display);
   font-size: 3.9rem;
@@ -643,6 +682,90 @@ body {
   color: var(--gold-lit);
   background-color: var(--oxblood);
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+}
+
+/* Where the middle of the record has been folded away. */
+.elision {
+  color: var(--gold);
+  letter-spacing: 0.5em;
+  text-align: center;
+  clear: left;
+}
+
+.log-toggle {
+  margin-bottom: 1.5rem;
+}
+
+/* ********************************** The Spread **********************************
+   On a wide enough viewport the leaf opens into two pages, as the reference
+   codex does: the painted side on the left, the written side on the right.
+
+   The pages are laid out in source order recto then verso, so a screen reader
+   and a narrow viewport both get the title, the narrative and the choices before
+   the map. The verso is moved left with order only once there is room for two
+   columns.
+*/
+.spread {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2.5rem;
+}
+
+.page {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+/* The audio settings sit above both pages rather than inside either. */
+.marginalia {
+  flex: 1 1 100%;
+}
+
+@media (min-width: 78rem) {
+  .codex {
+    max-width: 72rem;
+  }
+
+  /* The container keeps wrapping on purpose. .marginalia is a full-width item,
+     so with nowrap it would become a third column and crush both pages to
+     nothing. Wrapping leaves it a row of its own and lets the pages share the
+     next one.
+
+     A zero flex-basis rather than 50%: the fold border adds a pixel that a
+     percentage basis cannot account for, and the pages wrap instead of sharing
+     a line. At zero basis they always fit, then grow to split the row evenly. */
+  .page {
+    flex: 1 1 0;
+  }
+
+  /* Flex lines are filled in order order, not source order. With the verso at
+     -1 and the audio panel at the default 0, the verso and the panel filled the
+     first line between them and the recto was pushed onto a second. The panel
+     has to be ordered ahead of both so it takes a line of its own. */
+  .marginalia {
+    order: -2;
+  }
+
+  .page-verso {
+    order: -1;
+  }
+
+  /* The fold. A hairline with a soft gradient falling away from it, the way the
+     gutter of an open book shades. */
+  .page-recto {
+    padding-left: 2.5rem;
+    border-left: 1px solid rgba(87, 30, 16, 0.18);
+    box-shadow: inset 14px 0 18px -14px rgba(33, 20, 15, 0.45);
+  }
+
+  .page-verso {
+    padding-right: 0.5rem;
+  }
+
+  /* The verso opens with the miniature, so it needs no rule above it. */
+  .page-verso > .divider:first-child {
+    display: none;
+  }
 }
 
 /* ********************************** Marginalia **********************************

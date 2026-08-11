@@ -42,8 +42,10 @@ const walkToTheLight = async (user) => {
   await choose(user, 'Try to open the gate');
 };
 
+// queryAllByText rather than queryByText: revisiting a scene writes its text
+// into the log again, and the single-match query throws on the duplicate.
 const logContains = (text) =>
-  within(adventureLog()).queryByText(text) !== null;
+  within(adventureLog()).queryAllByText(text).length > 0;
 
 // ********************************** Initial State **********************************
 describe('initial state', () => {
@@ -350,5 +352,81 @@ describe('the ossuary and the tower', () => {
     await choose(user, 'Unlock the door');
 
     expect(logContains('You need Iron Key to do that.')).toBe(true);
+  });
+});
+
+// ********************************** Folding the Log **********************************
+// A long playthrough would otherwise push the choices far below the fold.
+describe('the folded log', () => {
+  const entries = () => within(adventureLog()).getAllByRole('listitem');
+
+  it('shows no toggle while the record is short', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go east');
+    await choose(user, 'Search the water');
+
+    expect(entries()).toHaveLength(3);
+    expect(screen.queryByRole('button', { name: /Read all/ })).not.toBeInTheDocument();
+  });
+
+  it('folds the middle away once the record runs long, keeping the incipit', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go west');
+    await choose(user, 'Follow the smoke');
+    await choose(user, 'Take the lantern');
+    await choose(user, 'Return to the forest');
+    await choose(user, 'Go east');
+    await choose(user, 'Follow the river');
+
+    // The opening line plus the four most recent. The elision mark between them
+    // is aria-hidden, so it is deliberately absent from the accessible list.
+    expect(entries()).toHaveLength(5);
+    // The incipit survives at the head, the newest line survives at the foot,
+    // and the hut in the middle is folded away.
+    expect(logContains('You wake up in a dark forest. Paths lead north, east and west.')).toBe(true);
+    expect(logContains('You come across a large gate with a glowing emblem.')).toBe(true);
+    expect(
+      logContains('An abandoned hut. A lantern still hangs by the door, and it is full.')
+    ).toBe(false);
+  });
+
+  it('keeps the versal on the opening line rather than on the elision', async () => {
+    const user = setupUser();
+    const { container } = render(<Game />);
+
+    await choose(user, 'Go west');
+    await choose(user, 'Follow the smoke');
+    await choose(user, 'Take the lantern');
+    await choose(user, 'Return to the forest');
+    await choose(user, 'Go east');
+
+    const versals = container.querySelectorAll('.log-entries li.versal');
+    expect(versals).toHaveLength(1);
+    expect(versals[0].textContent).toMatch(/^You wake up/);
+  });
+
+  it('unfolds the whole record on request, and folds it back', async () => {
+    const user = setupUser();
+    render(<Game />);
+
+    await choose(user, 'Go west');
+    await choose(user, 'Follow the smoke');
+    await choose(user, 'Take the lantern');
+    await choose(user, 'Return to the forest');
+    await choose(user, 'Go east');
+    await choose(user, 'Follow the river');
+
+    await user.click(screen.getByRole('button', { name: 'Read all 7 entries' }));
+
+    expect(entries()).toHaveLength(7);
+    expect(logContains('Brambles close over the path. Woodsmoke drifts from somewhere ahead.')).toBe(true);
+
+    await user.click(screen.getByRole('button', { name: 'Fold the record away' }));
+
+    expect(entries()).toHaveLength(5);
   });
 });
