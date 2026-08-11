@@ -1,74 +1,134 @@
-# Getting Started with Create React App
+# Text RPG
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A short browser-based text adventure. You wake up in a dark forest with no memory
+of how you got there, two paths in front of you, and a locked gate somewhere
+downriver. Find the Emblem, open the gate, and step into the light.
 
-## Available Scripts
+Play it here: **https://core-creates.github.io/text-rpg/**
 
-In the project directory, you can run:
+Built with React 18 on Create React App. Ambient audio, scene transitions and a
+confetti win screen are all handled client side, so there is no backend to run.
 
-### `npm start`
+## Playing
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Every scene gives you a block of text and a set of buttons. Clicking a button
+moves you to another scene and appends the new text to the adventure log at the
+bottom of the page.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Three things carry across scenes:
 
-### `npm test`
+- **Health** starts at 100 and drops when a choice carries damage.
+- **Inventory** holds items picked up along the way. The Potion restores 20 health
+  when used, capped at 100. The Emblem is required to open the gate.
+- **Seed** is a per-session number that drives the deterministic per-scene random
+  values available to scene text.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Audio settings live behind the button at the top right, with a volume slider and a
+mute toggle. Browsers block autoplay until you interact with the page, so sound
+starts after your first click.
 
-### `npm run build`
+## Running locally
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Requires Node 20 or newer.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+git clone https://github.com/Core-Creates/text-rpg.git
+cd text-rpg
+npm ci
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The dev server opens on http://localhost:3000.
 
-### `npm run eject`
+| Command | What it does |
+| --- | --- |
+| `npm start` | Dev server with hot reload |
+| `npm test` | Jest in interactive watch mode |
+| `npm test -- --watchAll=false` | Single test run, the way CI runs it |
+| `npm run build` | Production bundle into `build/` |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Project layout
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+src/
+  index.js              Entry point, mounts App
+  App.js                Shell, renders Game
+  gameData.js           The scene graph: all text, choices, items and damage
+  gameData.test.js      Structural tests over the scene graph
+  styles.css            Global styling and the pixel sword cursor
+  setupTests.js         Jest setup, stubs jsdom media playback
+  components/
+    Game.js             State machine: health, inventory, visited scenes, win state
+    Game.test.js        Playthrough tests driven through the UI
+    Sound.js            Audio layer, matches sounds to scene and log keywords
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Adding a scene
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Scenes live in `src/gameData.js` as keys on a single object. The minimum shape is
+a `text` string and a `choices` array:
 
-## Learn More
+```js
+clearing: {
+  text: "A quiet clearing opens up. Moonlight pools on the grass.",
+  choices: [
+    { text: "Rest here", next: "clearing" },
+    { text: "Head back", next: "intro" }
+  ]
+}
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Each choice supports these fields:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Field | Required | Meaning |
+| --- | --- | --- |
+| `text` | yes | The button label |
+| `next` | yes | Key of the scene to move to |
+| `item` | no | Item added to the inventory on selection |
+| `requires` | no | Item that must already be held, otherwise the move is refused |
+| `damage` | no | Health subtracted on selection |
 
-### Code Splitting
+Both `text` and `choices` can instead be a function of `(visited, rand)`, which
+lets a scene read differently the second time you enter it. `visited` is a boolean
+and `rand` is the seeded value for that scene:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```js
+choices: (visited) =>
+  visited
+    ? [{ text: "Go back", next: "intro" }]
+    : [{ text: "Look closer", next: "discovery" }]
+```
 
-### Analyzing the Bundle Size
+The tests in `src/gameData.test.js` walk the graph automatically, so a new scene
+is checked for broken links, reachability from the intro, unwinnable item
+requirements and accidental dead ends without writing anything new.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Audio
 
-### Making a Progressive Web App
+Sound files are hosted in an S3 bucket and referenced directly as `<audio>`
+sources in `src/components/Sound.js`. Playback is keyword driven: the component
+looks at the current scene name, the current scene text and the last three log
+entries, then starts or stops each track accordingly. A scene mentioning a river
+starts the river loop whether or not it is the river scene.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Deployment
 
-### Advanced Configuration
+Pushes to `main` trigger `.github/workflows/cicd.yml`, which installs
+dependencies, runs the test suite, builds the production bundle and publishes it
+to GitHub Pages. Pull requests against `main` run install, test and build without
+deploying.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The `homepage` field in `package.json` sets the asset base path for the
+`/text-rpg` subdirectory. If the repository is ever renamed, that field has to
+change with it or the deployed bundle will request its assets from the wrong path.
 
-### Deployment
+## Credits
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Created by Corrina Alcoser.
 
-### `npm run build` fails to minify
+Sound effects from freesound.org: River by klankbeeld, Growl by FK_Prod, Fanfare
+by bone666138, Cave by HermanDV, Footsteps by ScreenplayTheater.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## License
 
-## Text-RPG README
-This is README for Text-based RPG game.
-
+MIT. See [LICENSE](LICENSE).

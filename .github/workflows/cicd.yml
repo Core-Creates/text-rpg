@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
-  content: read
+  contents: read
   pages: write
   id-token: write
 
@@ -22,37 +25,44 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Run tests
+        run: npm test -- --watchAll=false
+        env:
+          CI: true
+
       - name: Build project
         run: npm run build
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
       - name: Upload artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
-          name: 'github-pages'
           path: build
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          artifact_name: 'github-pages'
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    permissions:
-      pages: write
-      id-token: write
-
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
