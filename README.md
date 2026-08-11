@@ -157,6 +157,24 @@ Inside the frame the page is an illuminated codex rather than a game HUD:
 parchment ground, a ruled and framed writing area, a rubricated hierarchy, and a
 gilt versal opening the adventure log.
 
+The leaf is built in three layers, outermost first, the way a real illuminated
+page is:
+
+1. **A torn sheet of vellum.** The deckle edge is an SVG turbulence filter. It is
+   applied to `.codex::before`, a bare parchment rectangle behind the content,
+   and deliberately not to the leaf itself: filtering an element rasterises its
+   whole subtree and softens every line of type on the page.
+2. **A ruled floral border** set inside the torn edge. Four SVG strips carrying a
+   tiled pattern of vermilion and lapis rosettes with gilt centres, strung on a
+   green vine. The strips carry no `viewBox` on purpose, so user units equal CSS
+   pixels and the flowers tile at a fixed size along an edge of any length rather
+   than stretching to fit.
+3. **The written area**, inset from both.
+
+The world map is treated as the page's miniature: an ultramarine ground powdered
+with gilt bezants, under an ogee arch. `mapLayout.js` reserves `PAD_TOP` of
+clearance so the first row of places clears the arch shoulders.
+
 Ornaments in `src/components/Ornaments.jsx` are inline SVG, drawn from scratch
 rather than traced from stock artwork. SVG scales to any frame size, inherits
 colour through `currentColor` so one shape serves every accent, and needs no
@@ -171,6 +189,8 @@ colour through `currentColor` so one shape serves every accent, and needs no
 | `--vermilion` | `#A6321C` | Rubrics and section headings |
 | `--gold` / `--gold-lit` | `#B8860B` / `#F8B700` | Versal, rules, lozenges |
 | `--moss` | `#7A8646` | Health at full strength |
+| `--lapis` | `#1F3A6E` | The ground the world map is painted on |
+| `--vine` | `#4B6B3A` | The vine stringing the border rosettes |
 
 Parchment and oxblood come from a Future Medieval palette; the deep brown ink,
 gold and moss are carried over from

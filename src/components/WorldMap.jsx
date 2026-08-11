@@ -2,14 +2,35 @@
 // A parchment chart of the scene graph. Places you have stood are lit and named,
 // places you have only heard of are dim and unnamed, so the map doubles as a
 // record of where you have been and a reason to keep walking.
-import React from 'react';
+import React, { useId } from 'react';
 import { MAP } from '../mapLayout';
 
 // Anchor an edge to the centre of each node box.
 const centre = (node) => ({ x: node.x + node.w / 2, y: node.y + node.h / 2 });
 
+// An ogee arch, the onion-shaped opening the miniature sits under in an
+// illuminated codex. Drawn from the plate dimensions so it always fits.
+// mapLayout reserves PAD_TOP of clearance so the first row clears the shoulders.
+const ogee = (w, h) => {
+  const spring = 66; // where the arch leaves the vertical jambs
+  const m = 3;
+  const apex = 3;
+  return [
+    `M${m},${h - m}`,
+    `L${m},${spring}`,
+    // Each side is one cubic that rises, turns inward, and arrives at the apex
+    // from below. The two meet at a cusp, which is what points the arch.
+    `C${m},${spring * 0.52} ${w * 0.40},${spring * 0.74} ${w / 2},${apex}`,
+    `C${w * 0.60},${spring * 0.74} ${w - m},${spring * 0.52} ${w - m},${spring}`,
+    `L${w - m},${h - m}`,
+    'Z'
+  ].join(' ');
+};
+
 function WorldMap({ visited, current }) {
   const { nodes, edges, width, height } = MAP;
+  const clipId = useId();
+  const arch = ogee(width, height);
 
   // Where you stand counts as known even before you leave it, since visited
   // only records scenes already departed.
@@ -27,6 +48,26 @@ function WorldMap({ visited, current }) {
           Object.keys(nodes).filter(seen).length
         } of ${Object.keys(nodes).length} places discovered.`}
       >
+        {/* The lapis field, clipped to the arch, with gilt bezants scattered
+            through it the way an illuminated ground is powdered with gold. */}
+        <defs>
+          <clipPath id={`arch-${clipId}`}>
+            <path d={arch} />
+          </clipPath>
+          <pattern id={`bezants-${clipId}`} patternUnits="userSpaceOnUse" width="34" height="34">
+            <circle cx="7" cy="9" r="1.15" fill="var(--gold)" opacity="0.55" />
+            <circle cx="24" cy="25" r="1.15" fill="var(--gold)" opacity="0.45" />
+            <circle cx="29" cy="6" r="0.8" fill="var(--gold-lit)" opacity="0.4" />
+          </pattern>
+        </defs>
+
+        <g clipPath={`url(#arch-${clipId})`}>
+          <rect className="chart-field" x="0" y="0" width={width} height={height} />
+          <rect x="0" y="0" width={width} height={height} fill={`url(#bezants-${clipId})`} />
+        </g>
+
+        <path className="chart-arch" d={arch} />
+
         {/* Roads first, so the place markers sit over them. */}
         <g className="chart-roads">
           {edges.map(({ from, to }) => {

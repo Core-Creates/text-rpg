@@ -13,6 +13,10 @@ const COL_GAP = 18;
 const ROW_GAP = 28;
 const PAD = 14;
 
+// Extra clearance at the top of the plate for the ogee arch that frames the
+// chart. Without it the first row of places collides with the arch shoulders.
+const PAD_TOP = 78;
+
 // A depth with more scenes than this wraps onto further rows. Without a cap the
 // chart grows wider than its plate, and since the SVG scales to fit, every label
 // shrinks until none of them are legible.
@@ -71,7 +75,7 @@ export function buildMap() {
   // ********************************** Positions **********************************
   const widest = Math.max(...rows.map((r) => r.length));
   const width = widest * NODE_W + (widest - 1) * COL_GAP + PAD * 2;
-  const height = rows.length * NODE_H + (rows.length - 1) * ROW_GAP + PAD * 2;
+  const height = PAD_TOP + rows.length * NODE_H + (rows.length - 1) * ROW_GAP + PAD;
 
   const nodes = {};
   rows.forEach((row, r) => {
@@ -82,7 +86,7 @@ export function buildMap() {
         name,
         label: labelFor(name),
         x: startX + c * (NODE_W + COL_GAP),
-        y: PAD + r * (NODE_H + ROW_GAP),
+        y: PAD_TOP + r * (NODE_H + ROW_GAP),
         w: NODE_W,
         h: NODE_H
       };

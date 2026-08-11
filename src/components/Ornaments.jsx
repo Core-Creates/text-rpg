@@ -6,7 +6,89 @@
 // it needs no img-src entry in the Content Security Policy. These are drawn from
 // scratch rather than traced from stock artwork, which keeps the repository
 // clear of third-party asset licensing.
-import React from 'react';
+import React, { useId } from 'react';
+
+// ********************************** Deckle Filter **********************************
+// A torn vellum edge, from the EaTemp reference where every panel ends raggedly
+// rather than on a clean rule.
+//
+// Turbulence displaces the edge of whatever it is applied to. It is deliberately
+// NOT applied to the leaf itself: filtering an element rasterises its subtree and
+// softens the text. styles.css puts it on .codex::before, a bare parchment sheet
+// sitting behind the content, so the tearing is real and the type stays crisp.
+export function DeckleFilter() {
+  return (
+    <svg className="defs" aria-hidden="true" focusable="false">
+      <filter id="deckle" x="-4%" y="-2%" width="108%" height="104%">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.022 0.055"
+          numOctaves="4"
+          seed="7"
+          result="noise"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="noise"
+          scale="9"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </svg>
+  );
+}
+
+// ********************************** Vine Border **********************************
+// The ruled border of an illuminated page: a cream band carrying rosettes in
+// vermilion and lapis with gilt centres, strung on a green vine.
+//
+// There is no viewBox on purpose. Without one, SVG user units equal CSS pixels,
+// so the pattern tiles at a fixed size along an edge of any length instead of
+// stretching the flowers to fit.
+export function VineBorder({ orientation = 'horizontal' }) {
+  const vertical = orientation === 'vertical';
+  // Four strips are rendered, so the pattern id has to be unique per instance.
+  // Duplicate ids would make every strip resolve to whichever was parsed first.
+  const id = `vine-${useId()}`;
+
+  return (
+    <svg className={`vine vine-${orientation}`} aria-hidden="true" focusable="false">
+      <defs>
+        <pattern
+          id={id}
+          patternUnits="userSpaceOnUse"
+          width={vertical ? 22 : 48}
+          height={vertical ? 48 : 22}
+          patternTransform={vertical ? 'rotate(90 11 11)' : undefined}
+        >
+          {/* The vine, running the length of the band. */}
+          <path
+            d="M0 11 C 8 4, 16 18, 24 11 C 32 4, 40 18, 48 11"
+            fill="none"
+            stroke="var(--vine)"
+            strokeWidth="1.2"
+          />
+          {/* Leaves either side of it. */}
+          <path
+            d="M12 8 C 9 3, 15 2, 14 7 Z M36 14 C 33 19, 39 20, 38 15 Z"
+            fill="var(--vine)"
+          />
+          {/* Rosettes, alternating vermilion and lapis. */}
+          <g>
+            <circle cx="24" cy="11" r="4.6" fill="var(--vermilion)" />
+            <circle cx="24" cy="11" r="1.7" fill="var(--gold-lit)" />
+            <circle cx="0" cy="11" r="4.6" fill="var(--lapis)" />
+            <circle cx="0" cy="11" r="1.7" fill="var(--gold-lit)" />
+            <circle cx="48" cy="11" r="4.6" fill="var(--lapis)" />
+            <circle cx="48" cy="11" r="1.7" fill="var(--gold-lit)" />
+          </g>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#${id})`} />
+    </svg>
+  );
+}
 
 // ********************************** Corner Flourish **********************************
 // One shape, rotated by CSS into each of the four corners of the leaf.

@@ -135,6 +135,13 @@
   --hall: #12100D;
   --hall-lit: #2A2118;
 
+  /* Ultramarine and vine green, from the illuminated codex page. The blue is
+     the ground a miniature is painted on and the field the marginalia stand in;
+     the green is the vine that strings the border rosettes together. */
+  --lapis: #1F3A6E;
+  --lapis-deep: #142748;
+  --vine: #4B6B3A;
+
   --rule: 1px solid rgba(87, 30, 16, 0.28);
   --leaf-shadow: 0 1px 2px rgba(33, 20, 15, 0.10), 0 18px 44px rgba(33, 20, 15, 0.22);
 
@@ -180,24 +187,77 @@ body {
 .codex {
   max-width: 46rem;
   margin: 0 auto;
-  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 5vw, 3.25rem);
+  /* Extra padding so the written area clears the floral border inside the edge. */
+  padding: clamp(2.5rem, 5vw, 3.75rem) clamp(2.25rem, 6vw, 4rem);
   position: relative;
+  background: none;
+}
+
+/* The sheet itself, carried on a pseudo-element rather than on .codex.
+   The deckle filter rasterises whatever it is applied to, so putting it on the
+   leaf would soften every line of type on the page. Here it tears a bare
+   rectangle of vellum sitting behind the content, and the text stays crisp. */
+.codex::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
 
   background-color: var(--parchment);
   background-image:
     radial-gradient(ellipse at 10% 0%, var(--parchment-lit), transparent 60%),
     radial-gradient(ellipse at 90% 100%, rgba(160, 140, 110, 0.22), transparent 55%);
 
-  /* A gold hairline with a second rule set inside it, and the leaf lifted off
-     the hall floor by a warm shadow. */
-  border: 1px solid var(--gold);
-  outline: 1px solid rgba(184, 134, 11, 0.35);
-  outline-offset: 6px;
+  filter: url(#deckle);
   box-shadow:
-    0 0 0 1px rgba(18, 16, 13, 0.6),
     0 24px 70px rgba(0, 0, 0, 0.62),
     0 0 90px rgba(184, 134, 11, 0.10);
 }
+
+/* The defs-only SVG that carries the filter. It must be in the document but
+   must never take up space. */
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ********************************** Floral Border **********************************
+   Four strips of vine set inside the torn edge, the ruled border of an
+   illuminated page. Inert, so they never swallow a click.
+*/
+.border {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.vine {
+  position: absolute;
+  display: block;
+}
+
+/* An SVG with no viewBox and no width attribute is a replaced element with a
+   300x150 intrinsic size, so left plus right alone leaves the strip 300px wide
+   and the border stops a third of the way along. The size has to be stated. */
+.vine-horizontal {
+  left: 1.05rem;
+  width: calc(100% - 2.1rem);
+  height: 22px;
+}
+
+.vine-horizontal:nth-child(1) { top: 0.85rem; }
+.vine-horizontal:nth-child(2) { bottom: 0.85rem; }
+
+.vine-vertical {
+  top: 1.05rem;
+  height: calc(100% - 2.1rem);
+  width: 22px;
+}
+
+.vine-vertical:nth-child(3) { left: 0.85rem; }
+.vine-vertical:nth-child(4) { right: 0.85rem; }
 
 /* ********************************** Corner Flourishes **********************************
    One SVG, rotated into each corner. The container is inert so the flourishes
@@ -469,20 +529,23 @@ body {
   max-width: 32rem;
   height: auto;
   margin: 0 auto;
-  padding: 0.85rem;
-  background-color: var(--parchment-aged);
-  background-image: radial-gradient(
-    ellipse at 50% 40%,
-    rgba(246, 243, 231, 0.75),
-    transparent 70%
-  );
-  border: 1px solid rgba(184, 134, 11, 0.55);
-  outline: 1px solid rgba(87, 30, 16, 0.20);
-  outline-offset: 3px;
+  overflow: visible;
+}
+
+/* The lapis ground the chart is painted on, the way a miniature sits on
+   ultramarine rather than on bare vellum. */
+.chart-field {
+  fill: var(--lapis);
+}
+
+.chart-arch {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.6;
 }
 
 .road {
-  stroke: rgba(87, 30, 16, 0.28);
+  stroke: rgba(236, 234, 218, 0.22);
   stroke-width: 1;
   stroke-dasharray: 3 4;
 }
@@ -493,9 +556,11 @@ body {
   stroke-dasharray: none;
 }
 
+/* On the lapis ground an unknown place is a faint outline in the dark, and a
+   known one is a panel of vellum laid over the blue. */
 .place rect {
-  fill: rgba(222, 214, 190, 0.55);
-  stroke: rgba(87, 30, 16, 0.30);
+  fill: rgba(20, 39, 72, 0.55);
+  stroke: rgba(236, 234, 218, 0.28);
   stroke-width: 1;
   stroke-dasharray: 3 3;
 }
@@ -506,7 +571,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  fill: var(--ink-faint);
+  fill: rgba(236, 234, 218, 0.45);
 }
 
 .place.is-known rect {
