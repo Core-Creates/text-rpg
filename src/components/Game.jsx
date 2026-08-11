@@ -4,6 +4,8 @@ import Confetti from 'react-confetti';
 import { useWindowSize } from '@react-hook/window-size';
 import gameData from '../gameData';
 import Sound from './Sound';
+import WorldMap from './WorldMap';
+import { Divider } from './Ornaments';
 
 // ********************************** Game Component **********************************
 function Game() {
@@ -192,11 +194,16 @@ function Game() {
         </button>
       </nav>
 
-      <p className="flourish" aria-hidden="true">&#10087;</p>
+      <Divider />
+
+      {/* ********************************** World Map ********************************** */}
+      <WorldMap visited={visited} current={currentScene} />
+
+      <Divider />
 
       {/* ********************************** Adventure Log ********************************** */}
       <section aria-labelledby="log-heading">
-        <h2 className="log-heading" id="log-heading">Adventure Log</h2>
+        <h2 className="cartouche" id="log-heading">Adventure Log</h2>
         <ul className="log-entries" aria-label="Adventure log">
           {log.map((entry, i) => (
             <li key={i}>{entry}</li>

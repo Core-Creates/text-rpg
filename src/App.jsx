@@ -1,16 +1,30 @@
 import React from 'react';
 import Game from './components/Game';
+import { CornerFlourish, HeraldicMark } from './components/Ornaments';
 
 // ********************************** App Shell **********************************
-// The outer leaf of the codex. Everything the player sees sits inside it.
+// The hall holds a single gilt-framed leaf. The four flourishes are one shape
+// rotated into each corner by CSS.
 function App() {
   return (
-    <main className="codex">
-      <p className="rubric">Incipit</p>
-      <h1 className="codex-title">Text RPG</h1>
-      <p className="flourish" aria-hidden="true">&#10087;</p>
-      <Game />
-    </main>
+    <div className="hall">
+      <main className="codex">
+        <div className="corners" aria-hidden="true">
+          <CornerFlourish />
+          <CornerFlourish />
+          <CornerFlourish />
+          <CornerFlourish />
+        </div>
+
+        <header className="codex-header">
+          <HeraldicMark />
+          <p className="rubric">Incipit</p>
+          <h1 className="codex-title">Text RPG</h1>
+        </header>
+
+        <Game />
+      </main>
+    </div>
   );
 }
 

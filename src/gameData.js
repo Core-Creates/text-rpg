@@ -6,6 +6,7 @@ const gameData = {
   // ********************************** Intro Scene **********************************
   // The player wakes up in a forest and can choose a direction to explore.
   intro: {
+    label: "Dark Forest",
     text: "You wake up in a dark forest. There are paths leading north and east.",
     choices: [
       { text: "Go north", next: "cave" },
@@ -16,6 +17,7 @@ const gameData = {
   // ********************************** Cave Scene **********************************
   // The cave has different dialogue if already visited. Introduces danger (bear).
   cave: {
+    label: "Cold Cave",
     text: (visited, rand) =>
       visited
         ? "The cave is empty now, echoing with silence."
@@ -32,6 +34,7 @@ const gameData = {
   // ********************************** River Scene **********************************
   // Player can search the river for items or follow it to the gate.
   river: {
+    label: "The River",
     text: "A peaceful river flows here. Something glimmers under the water.",
     choices: [
       { text: "Search the water", next: "findPotion", item: "Potion" },
@@ -43,6 +46,7 @@ const gameData = {
   // ********************************** Find Potion Scene **********************************
   // Grants a healing item to the player.
   findPotion: {
+    label: "Still Water",
     text: "You find a healing potion and add it to your inventory.",
     choices: [{ text: "Go back to the river", next: "river" }]
   },
@@ -50,6 +54,7 @@ const gameData = {
   // ********************************** Bear Encounter **********************************
   // A trap scene that causes damage and sends the player back.
   bear: {
+    label: "The Bear",
     text: "A bear chases you out! You barely escape.",
     choices: [{ text: "Run back to the forest", next: "intro" }]
   },
@@ -57,6 +62,7 @@ const gameData = {
   // ********************************** Gate Scene **********************************
   // Can only be opened with the Emblem item. Links to shrine path.
   gate: {
+    label: "The Gate",
     text: (visited, rand) =>
       visited
         ? "The gate still stands, locked and unmoving."
@@ -71,6 +77,7 @@ const gameData = {
   // ********************************** Side Path Scene **********************************
   // Leads to shrine where player can collect the Emblem.
   sidePath: {
+    label: "Hidden Path",
     text: "You find a hidden path leading to a shrine.",
     choices: [{ text: "Enter the shrine", next: "shrine" }]
   },
@@ -78,6 +85,7 @@ const gameData = {
   // ********************************** Shrine Scene **********************************
   // Player acquires the Emblem needed to pass the gate.
   shrine: {
+    label: "Ancient Shrine",
     text: "An ancient shrine with an Emblem on the altar. You take it.",
     choices: [{ text: "Return to the gate", next: "gate", item: "Emblem" }]
   },
@@ -85,6 +93,7 @@ const gameData = {
   // ********************************** Pass Gate Scene **********************************
   // Final scene that ends the game with victory.
   passGate: {
+    label: "The Light",
     text: "The gate opens and you step through into the light. You win!",
     choices: []
   }
