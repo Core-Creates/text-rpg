@@ -22,8 +22,10 @@ const setupUser = () => userEvent.setup({ delay: null });
 const choose = (user, label) =>
   user.click(screen.getByRole('button', { name: label }));
 
-const adventureLog = () =>
-  screen.getByText('Adventure Log:').closest('div').querySelector('ul');
+const adventureLog = () => screen.getByRole('list', { name: /adventure log/i });
+
+// Each vital is a label span followed by its value span, inside one .vital block.
+const vital = (label) => screen.getByText(label).parentElement;
 
 const logContains = (text) =>
   within(adventureLog()).queryByText(text) !== null;
@@ -36,8 +38,8 @@ describe('initial state', () => {
     expect(
       screen.getByText(/You wake up in a dark forest/)
     ).toBeInTheDocument();
-    expect(screen.getByText('Health:').parentElement).toHaveTextContent('Health: 100');
-    expect(screen.getByText('Inventory:').parentElement).toHaveTextContent('Inventory: Empty');
+    expect(screen.getByRole('meter', { name: 'Health' })).toHaveAttribute('aria-valuenow', '100');
+    expect(vital('Inventory')).toHaveTextContent('Empty');
   });
 
   it('offers both starting directions', () => {
@@ -57,7 +59,7 @@ describe('inventory', () => {
     await choose(user, 'Go east');
     await choose(user, 'Search the water');
 
-    expect(screen.getByText('Inventory:').parentElement).toHaveTextContent('Inventory: Potion');
+    expect(vital('Inventory')).toHaveTextContent('Potion');
     expect(screen.getByText(/You find a healing potion/)).toBeInTheDocument();
   });
 
@@ -69,7 +71,7 @@ describe('inventory', () => {
     await choose(user, 'Search the water');
     await choose(user, 'Use Potion');
 
-    expect(screen.getByText('Inventory:').parentElement).toHaveTextContent('Inventory: Empty');
+    expect(vital('Inventory')).toHaveTextContent('Empty');
     expect(logContains('You used a potion and restored health!')).toBe(true);
   });
 
@@ -110,7 +112,7 @@ describe('winning', () => {
     await choose(user, 'Enter the shrine');
     await choose(user, 'Return to the gate');
 
-    expect(screen.getByText('Inventory:').parentElement).toHaveTextContent('Emblem');
+    expect(vital('Inventory')).toHaveTextContent('Emblem');
 
     await choose(user, 'Try to open the gate');
 
@@ -136,10 +138,10 @@ describe('winning', () => {
     await choose(user, 'Return to the gate');
     await choose(user, 'Try to open the gate');
 
-    expect(screen.queryByText('Credits:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Credits')).not.toBeInTheDocument();
 
     expect(
-      await screen.findByText('Credits:', {}, { timeout: 4000 })
+      await screen.findByText('Credits', {}, { timeout: 4000 })
     ).toBeInTheDocument();
   }, 10000);
 });

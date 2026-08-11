@@ -30,19 +30,31 @@ are aimed.
 
 ### Content Security Policy
 
-Delivered as a `<meta http-equiv>` tag in `index.html`, because GitHub Pages
-cannot set response headers. The policy allows scripts only from the site's own
-origin, denies plugins and framing sources, restricts audio to the one S3 bucket
-that serves it, and blocks form submission entirely.
+Delivered as a `<meta http-equiv>` tag, because GitHub Pages cannot set response
+headers. The policy is defined in `vite.config.js` and injected into `index.html`
+at build time only: the dev server needs to inject its own stylesheets and HMR
+client, which a production-grade policy blocks.
 
-Two limitations are worth knowing:
+Scripts are restricted to the site's own origin, plugins are denied outright,
+audio is limited to the single S3 bucket that serves it, and form submission is
+blocked entirely.
 
-- `frame-ancestors` and `report-uri` are ignored when a policy is delivered by
-  meta tag. Clickjacking protection would need a real response header, which
-  means moving off GitHub Pages to a host that can set one.
-- `style-src` still permits `'unsafe-inline'`, because the game renders inline
-  `style` attributes. Moving that styling into stylesheet classes will allow the
-  directive to be tightened.
+`style-src` and `style-src-attr` are split deliberately:
+
+```
+style-src 'self' https://fonts.googleapis.com;
+style-src-attr 'unsafe-inline';
+```
+
+Inline style *attributes* have to be allowed, because `react-confetti` sets one
+on its canvas and the health meter sets its own width. Splitting the directive
+means inline `<style>` *elements* stay blocked, which a blanket
+`style-src 'unsafe-inline'` would have permitted. The build is checked for inline
+`<script>` and `<style>` tags: there are none.
+
+One limitation is not fixable here: `frame-ancestors` and `report-uri` are
+ignored when a policy is delivered by meta tag. Clickjacking protection needs a
+real response header, which means a host other than GitHub Pages.
 
 ### Dependency management
 
@@ -74,9 +86,10 @@ schedule so that newly published queries reach unchanged code.
 
 ## Known gaps
 
-- No Subresource Integrity on the Google Fonts stylesheet. Self-hosting the fonts
-  would remove the third-party origin entirely and allow both `style-src` and
-  `font-src` to drop their remote entries.
+- No Subresource Integrity on the Google Fonts stylesheet. Self-hosting
+  UnifrakturMaguntia, Cinzel and EB Garamond would remove the third-party origin
+  entirely and let both `style-src` and `font-src` drop their remote entries. It
+  would also stop leaking visitor IP addresses to a third party on every load.
 - The S3 buckets serving audio and the custom cursor are outside this repository.
   Their bucket policies and CORS configuration are not covered here.
 - No linter runs in CI. Create React App used to lint as part of its build, and

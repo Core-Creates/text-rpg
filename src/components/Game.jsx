@@ -89,9 +89,12 @@ function Game() {
     ? scene.text(visited[currentScene], rand)
     : scene.text;
 
+  // The health bar shifts from moss through gold to vermilion as it drains.
+  const meterState = health > 60 ? '' : health > 25 ? ' is-wounded' : ' is-grave';
+
   // ********************************** UI Render **********************************
   return (
-    <div>
+    <>
       {/* Sound handler for scene-triggered effects */}
       <Sound
         currentScene={currentScene}
@@ -102,11 +105,19 @@ function Game() {
         gameWon={gameWon}
       />
 
-      {/* Audio Settings Panel */}
-      <div style={{ textAlign: 'right', marginBottom: '1em' }}>
-        <button onClick={() => setShowAudioSettings(!showAudioSettings)}>🔊 Audio Settings</button>
+      {/* ********************************** Marginalia ********************************** */}
+      <div className="marginalia">
+        <button
+          type="button"
+          className="action"
+          aria-expanded={showAudioSettings}
+          onClick={() => setShowAudioSettings(!showAudioSettings)}
+        >
+          Sound
+        </button>
+
         {showAudioSettings && (
-          <div style={{ background: '#222', padding: '1em', borderRadius: '8px', color: '#fff' }}>
+          <div className="margin-note">
             <label>
               Volume: {Math.round(volume * 100)}%
               <input
@@ -119,61 +130,107 @@ function Game() {
                 disabled={muted}
               />
             </label>
-            <br />
             <label>
               <input
                 type="checkbox"
                 checked={muted}
                 onChange={() => setMuted(!muted)}
-              /> Mute all sounds
+              />
+              Mute all sounds
             </label>
           </div>
         )}
       </div>
 
-      <p><strong>Seed:</strong> {globalSeed}</p>
-      <p><strong>Health:</strong> {health}</p>
-      <p><strong>Inventory:</strong> {inventory.join(", ") || "Empty"}</p>
-      <button onClick={usePotion}>Use Potion</button>
+      {/* ********************************** Vitals ********************************** */}
+      <div className="vitals">
+        <div className="vital">
+          <span className="vital-label">Health</span>
+          <span className="vital-value">{health}</span>
+          <span
+            className="meter"
+            role="meter"
+            aria-label="Health"
+            aria-valuenow={health}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <span
+              className={`meter-fill${meterState}`}
+              style={{ width: `${health}%` }}
+            />
+          </span>
+        </div>
 
-      {!gameWon && sceneChoices.map((choice, i) => (
-        <button key={i} onClick={() => handleChoice(choice)} style={{ margin: '0.5em' }}>
-          {choice.text}
+        <div className="vital">
+          <span className="vital-label">Inventory</span>
+          <span className={`vital-value${inventory.length ? '' : ' is-empty'}`}>
+            {inventory.join(", ") || "Empty"}
+          </span>
+        </div>
+
+        <div className="vital">
+          <span className="vital-label">Seed</span>
+          <span className="vital-value">{globalSeed}</span>
+        </div>
+      </div>
+
+      {/* ********************************** Choices ********************************** */}
+      <nav className="choices" aria-label="Choices">
+        {!gameWon && sceneChoices.map((choice, i) => (
+          <button
+            type="button"
+            className="choice"
+            key={i}
+            onClick={() => handleChoice(choice)}
+          >
+            {choice.text}
+          </button>
+        ))}
+        <button type="button" className="action" onClick={usePotion}>
+          Use Potion
         </button>
-      ))}
+      </nav>
 
-      <div style={{ marginTop: "1em" }}>
-        <strong>Adventure Log:</strong>
-        <ul>
+      <p className="flourish" aria-hidden="true">&#10087;</p>
+
+      {/* ********************************** Adventure Log ********************************** */}
+      <section aria-labelledby="log-heading">
+        <h2 className="log-heading" id="log-heading">Adventure Log</h2>
+        <ul className="log-entries" aria-label="Adventure log">
           {log.map((entry, i) => (
             <li key={i}>{entry}</li>
           ))}
         </ul>
-      </div>
+      </section>
 
+      {/* ********************************** Explicit ********************************** */}
       {gameWon && (
         <>
           <Confetti width={width} height={height} />
-          <div style={{ marginTop: "2em", backgroundColor: '#61DAFB', padding: "1em", color: 'black', borderRadius: '8px', fontWeight: 'bold', textAlign: 'center' }}>
-            🎉 You win! Thanks for playing! 🎉
+          <div className="explicit">
+            <p className="explicit-title">You win</p>
+            <p>Thanks for playing</p>
           </div>
 
           {showCredits && (
-            <div style={{ marginTop: "1em", backgroundColor: '#61DAFB', padding: "1em", borderRadius: '6px', color: 'black' }}>
-              <p><strong>Credits:</strong></p>
+            <div className="colophon">
+              <p className="colophon-title">Credits</p>
               <p>Created by Corrina Alcoser</p>
-              <p>Sound effects hosted on AWS S3</p>
-              <p>All sounds from freesound.org</p>
-              <p>River - klankbeeld | Growl - FK_Prod | Fanfare - bone666138 | Cave - HermanDV | Footsteps - ScreenplayTheater</p>
-              <p>Powered by React.js</p>
+              <p>Powered by React</p>
+              <p>Sound effects hosted on AWS S3, sourced from freesound.org</p>
+              <p className="attribution">
+                River by klankbeeld &middot; Growl by FK_Prod &middot; Fanfare by
+                bone666138 &middot; Cave by HermanDV &middot; Footsteps by
+                ScreenplayTheater
+              </p>
             </div>
           )}
         </>
       )}
-    </div>
+    </>
   );
 }
 
 // ********************************** Export **********************************
 export default Game;
-// ********************************** Notes **********************************

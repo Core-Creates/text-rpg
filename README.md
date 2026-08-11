@@ -108,6 +108,40 @@ The tests in `src/gameData.test.js` walk the graph automatically, so a new scene
 is checked for broken links, reachability from the intro, unwinnable item
 requirements and accidental dead ends without writing anything new.
 
+## Look and feel
+
+The page is treated as a leaf of an illuminated codex rather than a game HUD.
+Parchment ground, a ruled and framed writing area, a rubricated hierarchy, and a
+gilt versal opening the adventure log.
+
+| Token | Value | Used for |
+| --- | --- | --- |
+| `--parchment` | `#ECEADA` | Page ground |
+| `--ink` | `#21140F` | Body text |
+| `--oxblood` | `#571E10` | Title, win panel, hover fills |
+| `--vermilion` | `#A6321C` | Rubrics and section headings |
+| `--gold` / `--gold-lit` | `#B8860B` / `#F8B700` | Versal, rules, lozenges |
+| `--moss` | `#7A8646` | Health at full strength |
+
+Parchment and oxblood come from a Future Medieval palette; the deep brown ink,
+gold and moss are carried over from
+[lore-craft](https://github.com/madison-vega/lore-craft), an earlier project by
+the same author.
+
+Three faces do the typographic work: **UnifrakturMaguntia** for the blackletter
+title and the versal, **Cinzel** for inscriptional Roman capitals on labels and
+buttons, and **EB Garamond** for justified manuscript body text.
+
+All styling lives in `src/styles.css`. Two inline styles remain and are
+deliberate: the health meter's width, and whatever `react-confetti` sets on its
+canvas. The Content Security Policy is written to permit exactly that and no more.
+
+One trap worth knowing before adding ornaments: CSS generated content is folded
+into an element's accessible name, so `content: "\2767"` on a button makes screen
+readers announce "floral heart, Go north". The choice lozenges are drawn with an
+empty box and a background instead. jsdom does not apply CSS, so the test suite
+cannot catch a regression here.
+
 ## Audio
 
 Sound files are hosted in an S3 bucket and referenced directly as `<audio>`
