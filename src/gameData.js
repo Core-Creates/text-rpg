@@ -18,7 +18,7 @@ const gameData = {
   // The cave has different dialogue if already visited. Introduces danger (bear).
   cave: {
     label: "Cold Cave",
-    text: (visited, rand) =>
+    text: (visited) =>
       visited
         ? "The cave is empty now, echoing with silence."
         : "You enter a cold cave. You hear growling ahead.",
@@ -63,7 +63,7 @@ const gameData = {
   // Can only be opened with the Emblem item. Links to shrine path.
   gate: {
     label: "The Gate",
-    text: (visited, rand) =>
+    text: (visited) =>
       visited
         ? "The gate still stands, locked and unmoving."
         : "You come across a large gate with a glowing emblem.",

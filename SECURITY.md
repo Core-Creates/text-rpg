@@ -19,8 +19,10 @@ stating the shape of the attack surface plainly, because it is small:
 - No `dangerouslySetInnerHTML`, `innerHTML`, `eval` or `new Function`
 - No secrets or credentials in the repository or the bundle
 
-The only outbound requests are static asset loads: audio files from an S3 bucket
-and web fonts from Google Fonts.
+The only outbound requests are static asset loads: audio files and the custom
+cursor, both from S3 buckets. Fonts are self-hosted, so there is no third-party
+origin in the page at all. Verified by loading the built bundle in a real browser
+and recording every request.
 
 The realistic risk is therefore not to a visitor playing the game. It is supply
 chain risk in the build and deploy pipeline, and that is where the controls below
@@ -42,7 +44,7 @@ blocked entirely.
 `style-src` and `style-src-attr` are split deliberately:
 
 ```
-style-src 'self' https://fonts.googleapis.com;
+style-src 'self';
 style-src-attr 'unsafe-inline';
 ```
 
@@ -84,13 +86,24 @@ schedule.
 CodeQL runs against JavaScript on every push and pull request, and weekly on a
 schedule so that newly published queries reach unchanged code.
 
+### Fonts
+
+UnifrakturMaguntia, Cinzel and EB Garamond are self-hosted from
+`src/assets/fonts` rather than loaded from Google. That removes the last
+third-party origin, lets both `style-src` and `font-src` sit at `'self'`, and
+stops handing every visitor's IP address to Google on page load. Subresource
+Integrity becomes moot, since nothing is fetched cross-origin.
+
+### Linting
+
+`npm run lint` runs ESLint 9 on every push and pull request, restoring the check
+that Create React App used to perform as part of its build and that was lost in
+the Vite migration.
+
 ## Known gaps
 
-- No Subresource Integrity on the Google Fonts stylesheet. Self-hosting
-  UnifrakturMaguntia, Cinzel and EB Garamond would remove the third-party origin
-  entirely and let both `style-src` and `font-src` drop their remote entries. It
-  would also stop leaking visitor IP addresses to a third party on every load.
 - The S3 buckets serving audio and the custom cursor are outside this repository.
-  Their bucket policies and CORS configuration are not covered here.
-- No linter runs in CI. Create React App used to lint as part of its build, and
-  that check was lost in the Vite migration.
+  Their bucket policies and CORS configuration are not covered here, and they are
+  the only remaining cross-origin requests the page makes.
+- `frame-ancestors` cannot be enforced from a meta tag, so the page can still be
+  framed. Fixing it means a host that can set response headers.
